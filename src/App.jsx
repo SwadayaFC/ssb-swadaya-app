@@ -1,75 +1,121 @@
+
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import logo from './assets/logo.png';
-const API_URL = 'https://script.google.com/macros/s/AKfycbzWMYSK5FAzaZiJO8f9ODnqcHGu5yjPrElWgiVSTVI29Os9MYcyEvsKu5HOn-x46zqr/exec';
+import { apiGetAll, apiAddStudent, apiAddPayment, apiAddAttendance } from './cloudApi';
 
-export default function App() {
-  const [session, setSession] = useState(JSON.parse(localStorage.getItem('session')) || null);
-  const [loginForm, setLoginForm] = useState({ username:'', password:'' });
-  const [error, setError] = useState('');
-  const [students, setStudents] = useState([]);
-  const [payments, setPayments] = useState([]);
-  const [attendance, setAttendance] = useState([]);
-  const [schedule, setSchedule] = useState([]);
-  const [loading, setLoading] = useState(true);
+const logo = 'https://i.imgur.com/1vQwK0T.png';
+const bg = 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1600&q=80';
 
-  useEffect(()=>{ fetchData(); },[]);
-  const fetchData = async () => {
-    try{
-      setStudents(await fetch(API_URL+'?action=students').then(r=>r.json()));
-      setPayments(await fetch(API_URL+'?action=payments').then(r=>r.json()));
-      setAttendance(await fetch(API_URL+'?action=attendance').then(r=>r.json()));
-      setSchedule(await fetch(API_URL+'?action=schedule').then(r=>r.json()));
-    }catch(e){console.log(e);}
-    setLoading(false);
-  };
+export default function App(){
+  const [role,setRole]=useState(null);
+  const [user,setUser]=useState('');
+  const [pass,setPass]=useState('');
+  const [cloud,setCloud]=useState({students:[],payments:[],attendance:[],schedule:[]});
+  const [student,setStudent]=useState({id:'',nama:'',kelompok:'',ortu:'',hp:''});
+  const [payment,setPayment]=useState({nama:'',bulan:'',nominal:''});
+  const [attendance,setAttendance]=useState({nama:'',tanggal:'',status:'Hadir'});
 
-  const doLogin = async () => {
-    const res = await fetch(API_URL+`?action=login&username=${loginForm.username}&password=${loginForm.password}`).then(r=>r.json());
-    if(!res.success){ setError('Username atau password salah'); return; }
-    localStorage.setItem('session', JSON.stringify(res)); setSession(res);
-  };
-  const logout = ()=>{ localStorage.removeItem('session'); setSession(null); };
+  useEffect(()=>{ if(role) loadCloud(); },[role]);
 
-  if(loading) return <div className='loginWrap'><div className='loginCard'><h2>Loading Cloud Data...</h2></div></div>;
-  if(!session) return <LoginPage loginForm={loginForm} setLoginForm={setLoginForm} doLogin={doLogin} error={error} />;
-  if(session.role==='member') return <ParentPortal session={session} students={students} payments={payments} attendance={attendance} schedule={schedule} logout={logout} />;
-  return <AdminDashboard students={students} payments={payments} attendance={attendance} schedule={schedule} fetchData={fetchData} logout={logout} />;
-}
+  async function loadCloud(){
+    const data = await apiGetAll();
+    setCloud(data);
+  }
 
-function LoginPage({ loginForm, setLoginForm, doLogin, error }) {
-  return <div className='loginWrap'><div className='overlay'></div><div className='loginCard'><img src={logo} className='clubLogo' alt='logo'/><h1>SSB SWADAYA FC</h1><p>Final Business Management Login</p><input placeholder='Username' value={loginForm.username} onChange={e=>setLoginForm({...loginForm,username:e.target.value})}/><input type='password' placeholder='Password' value={loginForm.password} onChange={e=>setLoginForm({...loginForm,password:e.target.value})}/>{error && <div className='errorBox'>{error}</div>}<button onClick={doLogin}>LOGIN SYSTEM</button></div></div>;
-}
+  function login(){
+    if(user==='admin' && pass==='admin123') setRole('admin');
+    else if(user==='ortu' && pass==='ortu123') setRole('ortu');
+    else alert('Login gagal');
+  }
 
-function AdminDashboard({ students, payments, attendance, schedule, fetchData, logout }) {
-  const [search,setSearch]=useState('');
-  const [student,setStudent]=useState({ id:'', name:'', group:'', parent:'', phone:'' });
-  const [payment,setPayment]=useState({ studentName:'', month:'', amount:'', status:'Lunas' });
-  const [att,setAtt]=useState({ studentName:'', date:'', status:'Hadir' });
-  const [sch,setSch]=useState({ date:'', time:'', group:'', field:'' });
+  async function saveStudent(){
+    await apiAddStudent(student); loadCloud(); alert('Siswa tersimpan');
+  }
+  async function savePayment(){
+    await apiAddPayment(payment); loadCloud(); alert('Pembayaran tersimpan');
+  }
+  async function saveAttendance(){
+    await apiAddAttendance(attendance); loadCloud(); alert('Absensi tersimpan');
+  }
 
-  const postData = async (data) => { await fetch(API_URL,{method:'POST', body:JSON.stringify(data)}); fetchData(); };
-  const totalKas = payments.reduce((a,b)=>a+Number(b.amount||0),0);
-  const filteredStudents = students.filter(s => (s.name||'').toLowerCase().includes(search.toLowerCase()) || (s.id||'').toLowerCase().includes(search.toLowerCase()));
+  if(!role){
+    return <div className="login-page" style={{backgroundImage:`linear-gradient(rgba(0,20,60,.65),rgba(0,20,60,.65)),url(${bg})`}}>
+      <div className="login-box">
+        <img src={logo} className="logo"/>
+        <h1>SSB SWADAYA FC</h1>
+        <p>Realtime Cloud Business Management</p>
+        <input placeholder="Username" onChange={e=>setUser(e.target.value)} />
+        <input type="password" placeholder="Password" onChange={e=>setPass(e.target.value)} />
+        <button onClick={login}>LOGIN SYSTEM</button>
+      </div>
+    </div>
+  }
 
-  return <div className='appShell'><aside className='sidebar'><img src={logo} className='sideLogo' alt='logo'/><h2>ADMIN BUSINESS</h2><nav><div>Dashboard</div><div>Students</div><div>Payments</div><div>Attendance</div><div>Schedule</div></nav><button className='logoutBtn' onClick={logout}>Logout</button></aside><main className='mainContent'>
-  <h1>Business Management Dashboard</h1>
-  <div className='statsGrid'><div className='statBox'><h3>{students.length}</h3><span>Total Siswa</span></div><div className='statBox'><h3>{payments.length}</h3><span>Pembayaran</span></div><div className='statBox'><h3>{attendance.length}</h3><span>Absensi</span></div><div className='statBox'><h3>Rp {totalKas.toLocaleString()}</h3><span>Total Kas</span></div></div>
-  <div className='panel'><h3>Tambah Siswa Baru</h3><input placeholder='ID' onChange={e=>setStudent({...student,id:e.target.value})}/><input placeholder='Nama' onChange={e=>setStudent({...student,name:e.target.value})}/><input placeholder='Kelompok' onChange={e=>setStudent({...student,group:e.target.value})}/><input placeholder='Orang Tua' onChange={e=>setStudent({...student,parent:e.target.value})}/><input placeholder='No HP Wali' onChange={e=>setStudent({...student,phone:e.target.value})}/><button onClick={()=>postData({action:'addStudent',...student})}>Simpan Siswa</button></div>
-  <div className='panel'><h3>Input Pembayaran</h3><input placeholder='Nama Siswa' onChange={e=>setPayment({...payment,studentName:e.target.value})}/><input placeholder='Bulan' onChange={e=>setPayment({...payment,month:e.target.value})}/><input placeholder='Nominal' onChange={e=>setPayment({...payment,amount:e.target.value})}/><button onClick={()=>postData({action:'addPayment',...payment})}>Simpan Pembayaran</button></div>
-  <div className='panel'><h3>Input Absensi</h3><input placeholder='Nama Siswa' onChange={e=>setAtt({...att,studentName:e.target.value})}/><input placeholder='Tanggal' onChange={e=>setAtt({...att,date:e.target.value})}/><input placeholder='Status' onChange={e=>setAtt({...att,status:e.target.value})}/><button onClick={()=>postData({action:'addAttendance',...att})}>Simpan Absensi</button></div>
-  <div className='panel'><h3>Input Jadwal Latihan</h3><input placeholder='Tanggal' onChange={e=>setSch({...sch,date:e.target.value})}/><input placeholder='Jam' onChange={e=>setSch({...sch,time:e.target.value})}/><input placeholder='Kelompok' onChange={e=>setSch({...sch,group:e.target.value})}/><input placeholder='Lapangan' onChange={e=>setSch({...sch,field:e.target.value})}/><button onClick={()=>postData({action:'addSchedule',...sch})}>Simpan Jadwal</button></div>
-  <div className='panel'><h3>Search Data Siswa</h3><input placeholder='Cari nama / ID siswa...' value={search} onChange={e=>setSearch(e.target.value)}/></div>
-  <div className='panel'><h3>Daftar Siswa</h3>{filteredStudents.map((s,i)=><div className='row' key={i}>{s.id} | {s.name} | {s.group} | {s.parent}<span><button onClick={()=>window.open(`https://wa.me/${String(s.phone||'').replace(/^0/,'62')}`)}>Chat Wali</button><button onClick={()=>postData({action:'deleteStudent',id:s.id})}>Delete</button></span></div>)}</div>
-  <div className='panel'><h3>Daftar Pembayaran</h3>{payments.map((p,i)=><div className='row' key={i}>{p.studentName} | {p.month} | Rp {Number(p.amount||0).toLocaleString()} | {p.status}</div>)}</div>
-  <div className='panel'><h3>Daftar Absensi</h3>{attendance.map((a,i)=><div className='row' key={i}>{a.studentName} | {a.date} | {a.status}</div>)}</div>
-  <div className='panel'><h3>Daftar Jadwal</h3>{schedule.map((s,i)=><div className='row' key={i}>{s.date} | {s.time} | {s.group} | {s.field}</div>)}</div>
-  </main></div>;
-}
+  if(role==='ortu'){
+    const s = cloud.students[0] || {};
+    return <div className="login-page" style={{backgroundImage:`linear-gradient(rgba(30,80,0,.45),rgba(30,80,0,.45)),url(${bg})`}}>
+      <div className="portal-box">
+        <img src={logo} className="logo"/>
+        <h1>PORTAL ORANG TUA</h1>
+        <h2>{s.nama || '-'}</h2>
+        <p>ID: {s.id}</p>
+        <p>Kelompok: {s.kelompok}</p>
+        <p>Wali: {s.ortu}</p>
+        <hr/>
+        <p>Total Record Pembayaran: {cloud.payments.length}</p>
+        <p>Total Record Absensi: {cloud.attendance.length}</p>
+        <h3>Jadwal Latihan</h3>
+        {cloud.schedule.map((j,i)=><p key={i}>{j.hari} - {j.jam}</p>)}
+        <button onClick={()=>setRole(null)}>Logout</button>
+      </div>
+    </div>
+  }
 
-function ParentPortal({ session, students, payments, attendance, schedule, logout }) {
-  const child = students.find(s=>s.id===session.studentId);
-  const pay = payments.filter(p=>p.studentName===child?.name);
-  const att = attendance.filter(a=>a.studentName===child?.name);
-  return <div className='loginWrap'><div className='parentCard'><img src={logo} className='clubLogoSmall' alt='logo'/><h1>PORTAL ORANG TUA</h1><h2>{child?.name}</h2><p>ID: {child?.id}</p><p>Kelompok: {child?.group}</p><p>Wali: {child?.parent}</p><hr/><p>Total Record Pembayaran: {pay.length}</p><p>Total Record Absensi: {att.length}</p><h3>Jadwal Latihan</h3>{schedule.map((s,i)=><div key={i} className='row'>{s.date} | {s.time} | {s.group} | {s.field}</div>)}<button onClick={logout}>Logout</button></div></div>;
+  const totalKas = cloud.payments.reduce((a,b)=>a+Number(b.nominal||0),0);
+
+  return <div className="dash">
+    <aside>
+      <img src={logo} className="side-logo"/>
+      <h2>ADMIN BUSINESS</h2>
+      <div className="menu">Dashboard</div>
+      <div className="menu">Students</div>
+      <div className="menu">Payments</div>
+      <div className="menu">Attendance</div>
+    </aside>
+    <main>
+      <h1>Business Management Dashboard</h1>
+      <div className="stats">
+        <div className="card"><b>{cloud.students.length}</b><span>Total Siswa</span></div>
+        <div className="card"><b>{cloud.payments.length}</b><span>Pembayaran</span></div>
+        <div className="card"><b>{cloud.attendance.length}</b><span>Absensi</span></div>
+        <div className="card"><b>Rp {totalKas}</b><span>Total Kas</span></div>
+      </div>
+
+      <section className="panel">
+        <h3>Tambah Siswa Baru</h3>
+        <input placeholder="ID" onChange={e=>setStudent({...student,id:e.target.value})}/>
+        <input placeholder="Nama" onChange={e=>setStudent({...student,nama:e.target.value})}/>
+        <input placeholder="Kelompok" onChange={e=>setStudent({...student,kelompok:e.target.value})}/>
+        <input placeholder="Orang Tua" onChange={e=>setStudent({...student,ortu:e.target.value})}/>
+        <input placeholder="No HP Wali" onChange={e=>setStudent({...student,hp:e.target.value})}/>
+        <button onClick={saveStudent}>Simpan Siswa</button>
+      </section>
+
+      <section className="panel">
+        <h3>Input Pembayaran</h3>
+        <input placeholder="Nama Siswa" onChange={e=>setPayment({...payment,nama:e.target.value})}/>
+        <input placeholder="Bulan" onChange={e=>setPayment({...payment,bulan:e.target.value})}/>
+        <input placeholder="Nominal" onChange={e=>setPayment({...payment,nominal:e.target.value})}/>
+        <button onClick={savePayment}>Simpan Pembayaran</button>
+      </section>
+
+      <section className="panel">
+        <h3>Input Absensi</h3>
+        <input placeholder="Nama Siswa" onChange={e=>setAttendance({...attendance,nama:e.target.value})}/>
+        <input placeholder="Tanggal" onChange={e=>setAttendance({...attendance,tanggal:e.target.value})}/>
+        <input placeholder="Status" onChange={e=>setAttendance({...attendance,status:e.target.value})}/>
+        <button onClick={saveAttendance}>Simpan Absensi</button>
+      </section>
+    </main>
+  </div>
 }
