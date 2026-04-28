@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+  async function loadStudents(){ const data = await getStudents(); setStudents(data.slice(1)); }
 
   async function addStudent(){
     await saveStudent({
