@@ -1,7 +1,7 @@
 {
-  "name": "ssb-swadaya-v5-pro",
+  "name": "ssb-swadaya-v6-fixed",
   "private": true,
-  "version": "5.0.0",
+  "version": "6.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
