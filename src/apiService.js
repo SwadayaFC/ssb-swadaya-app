@@ -3,8 +3,11 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxqjfXRXwvYJpeENySWUiLP
 export async function postData(action,payload={}){
   const res = await fetch(API_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action,...payload})
+    headers:{
+      'Content-Type':'text/plain;charset=utf-8'
+    },
+    body: JSON.stringify({action,...payload}),
+    redirect:'follow'
   });
   return await res.json();
 }
