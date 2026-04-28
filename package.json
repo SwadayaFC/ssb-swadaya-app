@@ -1,7 +1,7 @@
 {
-  "name": "ssb-swadaya-v3",
+  "name": "ssb-swadaya-v4-cloud",
   "private": true,
-  "version": "3.0.0",
+  "version": "4.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
