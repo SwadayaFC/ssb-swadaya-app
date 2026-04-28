@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Users, CalendarCheck, Wallet, Image, Home, ClipboardList, LogOut } from 'lucide-react';
 
 const SHEET_API = 'https://script.google.com/macros/s/AKfycbxqjfXRXwvYJpeENySWUiLPlhQYRHS1_XqxfWZIbgFpsPOJbA1LytmUrIPRzOr0ZLKC/exec';
 
@@ -24,15 +23,7 @@ export default function App() {
 
   if (page === 'login') return <LoginPage setPage={setPage} />;
   if (page === 'ortu') return <ParentPortal setPage={setPage} students={students} payments={payments} />;
-  return (
-    <AdminDashboard
-      setPage={setPage}
-      students={students}
-      payments={payments}
-      attendance={attendance}
-      totalIncome={totalIncome}
-    />
-  );
+  return <AdminDashboard setPage={setPage} students={students} payments={payments} attendance={attendance} totalIncome={totalIncome} />;
 }
 
 function LoginPage({ setPage }) {
@@ -52,41 +43,27 @@ function LoginPage({ setPage }) {
 }
 
 function Sidebar({ setPage }) {
-  const menus = [
-    ['Dashboard', Home],
-    ['Data Siswa', Users],
-    ['Absensi', CalendarCheck],
-    ['Pembayaran', Wallet],
-    ['Laporan', ClipboardList],
-    ['Galeri', Image]
-  ];
+  const menus = ['Dashboard', 'Data Siswa', 'Absensi', 'Pembayaran', 'Laporan', 'Galeri'];
 
   return (
     <div className="w-72 bg-blue-950 text-white min-h-screen p-6">
       <img src="https://i.imgur.com/4szzQJh.png" alt="logo" className="w-24 mx-auto mb-3" />
       <h2 className="text-center text-2xl font-bold mb-10">SWADAYA FC</h2>
       <div className="space-y-3">
-        {menus.map(([name, Icon]) => (
-          <div key={name} className="flex items-center gap-3 bg-white/10 p-3 rounded-xl">
-            <Icon size={18} /> {name}
-          </div>
+        {menus.map((name) => (
+          <div key={name} className="bg-white/10 p-3 rounded-xl">{name}</div>
         ))}
-        <button onClick={() => setPage('login')} className="flex items-center gap-3 bg-red-600 p-3 rounded-xl w-full mt-10">
-          <LogOut size={18} /> Logout
-        </button>
+        <button onClick={() => setPage('login')} className="bg-red-600 p-3 rounded-xl w-full mt-10">Logout</button>
       </div>
     </div>
   );
 }
 
-function StatCard({ icon: Icon, title, value }) {
+function StatCard({ title, value }) {
   return (
-    <div className="bg-white rounded-3xl shadow-lg p-6 flex items-center gap-4">
-      <div className="bg-blue-100 p-4 rounded-2xl"><Icon className="text-blue-700" /></div>
-      <div>
-        <div className="text-gray-500 text-sm">{title}</div>
-        <div className="text-3xl font-black">{value}</div>
-      </div>
+    <div className="bg-white rounded-3xl shadow-lg p-6">
+      <div className="text-gray-500 text-sm">{title}</div>
+      <div className="text-3xl font-black mt-2">{value}</div>
     </div>
   );
 }
@@ -99,10 +76,10 @@ function AdminDashboard({ setPage, students, payments, attendance, totalIncome }
         <h1 className="text-4xl font-black mb-8">Dashboard SSB Swadaya Premium</h1>
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <StatCard icon={Users} title="Total Siswa" value={students.length} />
-          <StatCard icon={CalendarCheck} title="Absensi Hari Ini" value={attendance.length} />
-          <StatCard icon={Wallet} title="Total Pemasukan" value={'Rp' + totalIncome.toLocaleString()} />
-          <StatCard icon={Image} title="Dokumentasi" value="18" />
+          <StatCard title="Total Siswa" value={students.length} />
+          <StatCard title="Absensi Hari Ini" value={attendance.length} />
+          <StatCard title="Total Pemasukan" value={'Rp' + totalIncome.toLocaleString()} />
+          <StatCard title="Dokumentasi" value="18" />
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -122,9 +99,7 @@ function AdminDashboard({ setPage, students, payments, attendance, totalIncome }
             <h2 className="font-bold text-xl mb-4">Pembayaran Terbaru</h2>
             <div className="space-y-3">
               {payments.map((p, i) => (
-                <div key={i} className="border rounded-xl p-3">
-                  {p.nama} - Rp{Number(p.jumlah || 0).toLocaleString()}
-                </div>
+                <div key={i} className="border rounded-xl p-3">{p.nama} - Rp{Number(p.jumlah || 0).toLocaleString()}</div>
               ))}
             </div>
           </div>
