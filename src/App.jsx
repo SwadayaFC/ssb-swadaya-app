@@ -1,141 +1,93 @@
-import { useState } from 'react';
-import { loginUser, getDashboardStats, getStudents, saveStudent, saveAttendance, savePayment } from './apiService';
+import React, { useState, useEffect } from 'react';
+  const totalIncome = payments.reduce((a,b)=>a+Number(b.jumlah||0),0);
 
-export default function App(){
-  const [user,setUser] = useState(null);
-  const [stats,setStats] = useState({siswa:0,hadir:0,income:'0',foto:18});
-  const [students,setStudents] = useState([]);
-  const [showStudent,setShowStudent] = useState(false);
-  const [showAbsen,setShowAbsen] = useState(false);
-  const [showBayar,setShowBayar] = useState(false);
+  if(page==='login') return <LoginPage setPage={setPage}/>;
+  if(page==='ortu') return <ParentPortal setPage={setPage} students={students} payments={payments}/>;
+  return <AdminDashboard setPage={setPage} students={students} payments={payments} attendance={attendance} totalIncome={totalIncome}/>;
+}
 
-  const [form,setForm] = useState({nama:'',kelompok:'U12',ortu:'',wa:'',alamat:''});
-
-  async function doLogin(username,password){
-    const res = await loginUser(username,password);
-    if(res.success){
-      setUser(res);
-      setStats(await getDashboardStats());
-      if(res.role==='admin'){
-        const st = await getStudents();
-        setStudents(st.slice(1));
-      }
-    } else alert('Login gagal');
-  }
-
-  async function submitStudent(){
-    await saveStudent({
-      siswa_id:'SWD'+String(Date.now()).slice(-3),
-      nama_siswa:form.nama,
-      kelompok_umur:form.kelompok,
-      ttl:'2014-01-01',
-      alamat:form.alamat,
-      nama_ortu:form.ortu,
-      no_wa_ortu:form.wa,
-      spp:25000
-    });
-    const st = await getStudents();
-    setStudents(st.slice(1));
-    setStats(await getDashboardStats());
-    setShowStudent(false);
-  }
-
-  async function submitAbsensi(){
-    await saveAttendance({siswa_id:'SWD001',nama_siswa:'Andi Saputra',status_hadir:'HADIR',pelatih:'Coach Rian'});
-    setStats(await getDashboardStats());
-    setShowAbsen(false);
-  }
-
-  async function submitBayar(){
-    await savePayment({bulan:'MEI',siswa_id:'SWD001',nama_siswa:'Andi Saputra',nominal:25000});
-    setStats(await getDashboardStats());
-    setShowBayar(false);
-  }
-
-  const btn={padding:'12px 18px',border:'none',borderRadius:10,background:'#2563eb',color:'#fff',cursor:'pointer',fontWeight:'bold'};
-  const card={background:'#fff',padding:20,borderRadius:14,boxShadow:'0 3px 10px rgba(0,0,0,0.08)',textAlign:'center'};
-  const input={width:'100%',padding:10,marginTop:10,border:'1px solid #ccc',borderRadius:8};
-
-  if(!user){
-    return <div style={{minHeight:'100vh',display:'flex',justifyContent:'center',alignItems:'center',background:'linear-gradient(135deg,#0f172a,#2563eb)',fontFamily:'Arial'}}>
-      <div style={{background:'#fff',padding:40,borderRadius:20,width:430,textAlign:'center'}}>
-        <h1>⚽ SSB SWADAYA FC</h1>
-        <p>Football Academy Management System</p>
-        <button style={btn} onClick={()=>doLogin('admin','admin123')}>LOGIN ADMIN</button><br/><br/>
-        <button style={btn} onClick={()=>doLogin('SWD001','12345')}>LOGIN ORANG TUA</button>
+function LoginPage({setPage}){
+  return <div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-950 to-blue-600 p-6'>
+    <div className='bg-white/95 rounded-3xl shadow-2xl p-10 w-full max-w-xl text-center'>
+      <img src='https://i.imgur.com/4szzQJh.png' className='w-40 mx-auto mb-4'/>
+      <h1 className='text-5xl font-black text-blue-950 mb-2'>SSB SWADAYA FC</h1>
+      <p className='text-gray-600 mb-8'>Football Academy Management System Premium</p>
+      <div className='space-y-4'>
+        <button onClick={()=>setPage('admin')} className='w-full bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-2xl font-bold'>LOGIN ADMIN</button>
+        <button onClick={()=>setPage('ortu')} className='w-full bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-2xl font-bold'>LOGIN ORANG TUA</button>
       </div>
     </div>
-  }
-
-  return <div style={{display:'flex',minHeight:'100vh',fontFamily:'Arial',background:'#e2e8f0'}}>
-    <div style={{width:250,background:'#0f172a',color:'#fff',padding:25}}>
-      <h2>⚽ SWADAYA FC</h2>
-      <p style={{opacity:.7}}>{user.role.toUpperCase()} PANEL</p>
-      <div style={{marginTop:30,lineHeight:'40px'}}>
-        <div>📊 Dashboard</div>
-        <div>👥 Data Siswa</div>
-        <div>✅ Absensi</div>
-        <div>💳 Pembayaran</div>
-        <div>📅 Jadwal</div>
-        <div>🚪 Logout</div>
-      </div>
-    </div>
-
-    <div style={{flex:1,padding:30}}>
-      <h1>Dashboard SSB Swadaya</h1>
-
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:15,marginTop:20}}>
-        <div style={card}><b>Total Siswa</b><h2>{stats.siswa}</h2></div>
-        <div style={card}><b>Hadir Hari Ini</b><h2>{stats.hadir}</h2></div>
-        <div style={card}><b>Kas Bulan Ini</b><h2>{stats.income}</h2></div>
-        <div style={card}><b>Foto Galeri</b><h2>{stats.foto}</h2></div>
-      </div>
-
-      {user.role==='admin' ? <>
-      <div style={{marginTop:20}}>
-        <button style={btn} onClick={()=>setShowStudent(true)}>+ Tambah Siswa</button>
-        <button style={{...btn,marginLeft:10}} onClick={()=>setShowAbsen(true)}>Input Absensi</button>
-        <button style={{...btn,marginLeft:10}} onClick={()=>setShowBayar(true)}>Input Pembayaran</button>
-      </div>
-
-      <div style={{background:'#fff',padding:20,borderRadius:15,marginTop:25}}>
-        <h3>Daftar Siswa Aktif</h3>
-        {students.map((s,i)=><div key={i} style={{padding:'10px 0',borderBottom:'1px solid #ddd'}}>{s[0]} - {s[1]} - {s[2]} - {s[5]}</div>)}
-      </div>
-      </> :
-      <div style={{background:'#fff',padding:20,borderRadius:15,marginTop:25}}>
-        <h3>Portal Orang Tua</h3>
-        <p>Monitoring pembayaran, absensi, dan jadwal latihan anak.</p>
-      </div>}
-    </div>
-
-    {showStudent && <Modal title="Tambah Siswa Baru" onClose={()=>setShowStudent(false)}>
-      <input style={input} placeholder="Nama Siswa" onChange={e=>setForm({...form,nama:e.target.value})}/>
-      <input style={input} placeholder="Kelompok Umur" onChange={e=>setForm({...form,kelompok:e.target.value})}/>
-      <input style={input} placeholder="Nama Orang Tua" onChange={e=>setForm({...form,ortu:e.target.value})}/>
-      <input style={input} placeholder="WA Orang Tua" onChange={e=>setForm({...form,wa:e.target.value})}/>
-      <input style={input} placeholder="Alamat" onChange={e=>setForm({...form,alamat:e.target.value})}/>
-      <button style={{...btn,marginTop:15}} onClick={submitStudent}>Simpan</button>
-    </Modal>}
-
-    {showAbsen && <Modal title="Input Absensi Hari Ini" onClose={()=>setShowAbsen(false)}>
-      <p>Klik simpan untuk absensi hadir.</p>
-      <button style={{...btn,marginTop:15}} onClick={submitAbsensi}>Simpan Absensi</button>
-    </Modal>}
-
-    {showBayar && <Modal title="Input Pembayaran Bulanan" onClose={()=>setShowBayar(false)}>
-      <p>Klik simpan untuk pembayaran Rp25.000</p>
-      <button style={{...btn,marginTop:15}} onClick={submitBayar}>Simpan Pembayaran</button>
-    </Modal>}
   </div>
 }
 
-function Modal({title,children,onClose}){
-  return <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.4)',display:'flex',justifyContent:'center',alignItems:'center'}}>
-    <div style={{background:'#fff',padding:25,borderRadius:15,width:400}}>
-      <h3>{title}</h3>
-      {children}
-      <div style={{marginTop:15}}><button onClick={onClose}>Tutup</button></div>
+function Sidebar({setPage}){
+  const menu = [
+    ['Dashboard',Home],['Data Siswa',Users],['Absensi',CalendarCheck],['Pembayaran',Wallet],['Laporan',ClipboardList],['Galeri',Image]
+  ];
+  return <div className='w-72 bg-blue-950 text-white min-h-screen p-6'>
+    <img src='https://i.imgur.com/4szzQJh.png' className='w-24 mx-auto mb-3'/>
+    <h2 className='text-center text-2xl font-bold mb-10'>SWADAYA FC</h2>
+    <div className='space-y-3'>
+      {menu.map(([n,I])=><div key={n} className='flex items-center gap-3 bg-white/10 p-3 rounded-xl'><I size={18}/>{n}</div>)}
+      <button onClick={()=>setPage('login')} className='flex items-center gap-3 bg-red-600 p-3 rounded-xl w-full mt-10'><LogOut size={18}/>Logout</button>
+    </div>
+  </div>
+}
+
+function StatCard({icon:Icon,title,val}){
+  return <div className='bg-white rounded-3xl shadow-lg p-6 flex items-center gap-4'>
+    <div className='bg-blue-100 p-4 rounded-2xl'><Icon className='text-blue-700'/></div>
+    <div><div className='text-gray-500 text-sm'>{title}</div><div className='text-3xl font-black'>{val}</div></div>
+  </div>
+}
+
+function AdminDashboard({setPage,students,payments,attendance,totalIncome}){
+  return <div className='flex bg-slate-100 min-h-screen'>
+    <Sidebar setPage={setPage}/>
+    <div className='flex-1 p-8'>
+      <h1 className='text-4xl font-black mb-8'>Dashboard SSB Swadaya Premium</h1>
+      <div className='grid md:grid-cols-4 gap-6 mb-8'>
+        <StatCard icon={Users} title='Total Siswa' val={students.length}/>
+        <StatCard icon={CalendarCheck} title='Absensi Hari Ini' val={attendance.length}/>
+        <StatCard icon={Wallet} title='Total Pemasukan' val={'Rp'+totalIncome.toLocaleString()}/>
+        <StatCard icon={Image} title='Dokumentasi' val='18'/>
+      </div>
+      <div className='grid md:grid-cols-3 gap-6'>
+        <div className='md:col-span-2 bg-white rounded-3xl shadow p-6'>
+          <h2 className='font-bold text-xl mb-4'>Daftar Siswa Aktif</h2>
+          <div className='space-y-3'>
+            {students.map((s,i)=><div key={i} className='border rounded-xl p-3 flex justify-between'><span>{s.id} - {s.nama}</span><span>{s.kelas}</span></div>)}
+          </div>
+        </div>
+        <div className='bg-white rounded-3xl shadow p-6'>
+          <h2 className='font-bold text-xl mb-4'>Pembayaran Terbaru</h2>
+          <div className='space-y-3'>
+            {payments.map((p,i)=><div key={i} className='border rounded-xl p-3'>{p.nama} - Rp{Number(p.jumlah).toLocaleString()}</div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+function ParentPortal({setPage,students,payments}){
+  const siswa = students[0] || {};
+  const bayar = payments[0] || {};
+  return <div className='min-h-screen bg-slate-100 p-8'>
+    <button onClick={()=>setPage('login')} className='mb-6 bg-red-600 text-white px-5 py-2 rounded-xl'>Kembali</button>
+    <div className='max-w-4xl mx-auto bg-white rounded-3xl shadow-xl p-8'>
+      <h1 className='text-3xl font-black mb-6'>Portal Orang Tua Siswa</h1>
+      <div className='grid md:grid-cols-2 gap-6'>
+        <div className='bg-blue-50 p-6 rounded-2xl'>
+          <h3 className='font-bold mb-2'>Data Anak</h3>
+          <p>{siswa.nama}</p><p>{siswa.kelas}</p><p>{siswa.ortu}</p>
+        </div>
+        <div className='bg-green-50 p-6 rounded-2xl'>
+          <h3 className='font-bold mb-2'>Status Pembayaran</h3>
+          <p>Terakhir Bayar: Rp{Number(bayar.jumlah||0).toLocaleString()}</p>
+          <p>Status: LUNAS</p>
+        </div>
+      </div>
     </div>
   </div>
 }
