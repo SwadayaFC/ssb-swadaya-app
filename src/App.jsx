@@ -1,68 +1,70 @@
-import React, { useState } from 'react';
-          <div>Data Siswa</div>
-          <div>Absensi</div>
-          <div>Pembayaran</div>
-          <div>Jadwal Latihan</div>
-          <div>Pengumuman</div>
-          <div>Laporan</div>
-        </nav>
-        <button className='logoutBtn' onClick={()=>setPage('login')}>Logout</button>
-      </aside>
+import React, { useState } from 'react'; import './App.css';
 
-      <main className='mainContent'>
-        <div className='hero'>
-          <h1>Selamat Datang, Admin!</h1>
-          <p>Kelola akademi dengan mudah & profesional</p>
-        </div>
+const logo = 'https://i.ibb.co/6JQp8fH/SwadayaFC-logo.png';
 
-        <div className='statsGrid'>
-          <div className='statBox'><h3>{students.length}</h3><span>Total Siswa</span></div>
-          <div className='statBox'><h3>12</h3><span>Hadir Hari Ini</span></div>
-          <div className='statBox'><h3>Rp25.000</h3><span>Kas Bulan Ini</span></div>
-          <div className='statBox'><h3>6</h3><span>Tunggakan</span></div>
-        </div>
+export default function App() { const [page, setPage] = useState('login');
 
-        <div className='actionGrid'>
-          <button>+ Tambah Siswa</button>
-          <button>Input Absensi</button>
-          <button>Input Pembayaran</button>
-          <button>Jadwal Latihan</button>
-        </div>
+const students = [ { id: 'SWD001', name: 'Andi Saputra', group: 'U12', parent: 'Bpk Joko' }, { id: 'SWD002', name: 'Rizky Maulana', group: 'U12', parent: 'Bpk Ahmad' }, { id: 'SWD003', name: 'Daffa Ardiansyah', group: 'U10', parent: 'Bpk Ardi' }, { id: 'SWD004', name: 'Farel Ramadhan', group: 'U14', parent: 'Bpk Fajar' } ];
 
-        <div className='panelGrid'>
-          <div className='panel'>
-            <h3>Data Siswa Terbaru</h3>
-            {students.map((s,i)=><div key={i} className='row'>{s.id} - {s.name} - {s.group} - {s.parent}</div>)}
-          </div>
+const payments = [ { name: 'Andi Saputra', amount: 'Rp150.000', status: 'Lunas' }, { name: 'Rizky Maulana', amount: 'Rp150.000', status: 'Lunas' }, { name: 'Daffa Ardiansyah', amount: 'Rp150.000', status: 'Belum Lunas' } ];
 
-          <div className='panel'>
-            <h3>Pembayaran Terbaru</h3>
-            {payments.map((p,i)=><div key={i} className='row'>{p.name} - {p.amount} - {p.status}</div>)}
-          </div>
-        </div>
-      </main>
+if (page === 'login') return ; if (page === 'ortu') return ; return ; }
+
+function LoginPage({ setPage }) { return ( SSB SWADAYA FC Football Academy Management System Premium <button onClick={() => setPage('admin')}>LOGIN ADMIN <button onClick={() => setPage('ortu')}>LOGIN ORANG TUA ); }
+
+function AdminDashboard({ setPage, students, payments }) { return ( SSB SWADAYA FC Football Academy Management )
+                                                          <nav>
+      <div>Dashboard</div>
+      <div>Data Siswa</div>
+      <div>Absensi</div>
+      <div>Pembayaran</div>
+      <div>Jadwal Latihan</div>
+      <div>Pengumuman</div>
+      <div>Laporan</div>
+    </nav>
+
+    <button className='logoutBtn' onClick={() => setPage('login')}>Logout</button>
+  </aside>
+
+  <main className='mainContent'>
+    <div className='hero'>
+      <h1>Selamat Datang, Admin!</h1>
+      <p>Kelola akademi dengan mudah & profesional</p>
     </div>
-  )
-}
 
-function ParentPortal({setPage,students,payments}){
-  const student = students[0];
-  return (
-    <div className='loginWrap'>
-      <div className='parentCard'>
-        <img src={logo} className='clubLogoSmall'/>
-        <h1>PORTAL ORANG TUA</h1>
-        <h2>{student.name}</h2>
-        <p>ID Siswa : {student.id}</p>
-        <p>Kelompok : {student.group}</p>
-        <p>Orang Tua : {student.parent}</p>
-        <hr/>
+    <div className='statsGrid'>
+      <div className='statBox'><h3>{students.length}</h3><span>Total Siswa</span></div>
+      <div className='statBox'><h3>12</h3><span>Hadir Hari Ini</span></div>
+      <div className='statBox'><h3>Rp25.000.000</h3><span>Kas Bulan Ini</span></div>
+      <div className='statBox'><h3>6</h3><span>Tunggakan</span></div>
+    </div>
+
+    <div className='actionGrid'>
+      <button>+ Tambah Siswa</button>
+      <button>Input Absensi</button>
+      <button>Input Pembayaran</button>
+      <button>Jadwal Latihan</button>
+    </div>
+
+    <div className='panelGrid'>
+      <div className='panel'>
+        <h3>Data Siswa Aktif</h3>
+        {students.map((s, i) => (
+          <div className='row' key={i}>{s.id} - {s.name} - {s.group} - {s.parent}</div>
+        ))}
+      </div>
+
+      <div className='panel'>
         <h3>Status Pembayaran</h3>
-        <p>{payments[0].amount} - {payments[0].status}</p>
-        <h3>Absensi Bulan Ini</h3>
-        <p>Hadir 7x | Izin 1x | Alpha 0x</p>
-        <button onClick={()=>setPage('login')}>Kembali</button>
+        {payments.map((p, i) => (
+          <div className='row' key={i}>{p.name} - {p.amount} - {p.status}</div>
+        ))}
       </div>
     </div>
-  )
-}
+  </main>
+</div>
+); }
+
+function ParentPortal({ setPage, students, payments }) { const student = students[0];
+
+return ( PORTAL ORANG TUA {student.name} ID Siswa : {student.id} Kelompok : {student.group} Wali : {student.parent} Status Pembayaran {payments[0].amount} - {payments[0].status} Absensi Bulan Ini Hadir 7x | Izin 1x | Alpha 0x <button onClick={() => setPage('login')}>Kembali ); }
