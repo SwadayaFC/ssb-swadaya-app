@@ -1,0 +1,29 @@
+body,html,#root{margin:0;padding:0;font-family:Arial,sans-serif;background:#06152f;color:white;}
+*{box-sizing:border-box}
+.loginWrap{min-height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#06152f,#2450c5);}
+.loginCard,.parentCard{background:rgba(255,255,255,0.08);padding:42EYHgEzWEdjJgYKAu8VjC4DohVYUMbvZ6Ua45MgSaYBTFv3725expKB69YsjM6Utj99E6Sn3LpcxQ4mNrwfrJLM5NGbWiQ,0,0,0.4);width:420px;}
+.clubLogo{width:150px;margin-bottom:20px;}
+.clubLogoSmall{width:100px;margin-bottom:10px;}
+.loginCard h1,.parentCard h1{margin:10px 0;font-size:38px;}
+.loginCard p{opacity:.9;margin-bottom:25px;}
+button{padding:14px 22px;border:none;border-radius:12px;background:#2450c5;color:white;font-weight:bold;margin:8px;cursor:pointer;transition:.3s;}
+button:hover{transform:translateY(-2px);background:#2f67ff;}
+.appShell{display:flex;min-height:100vh;background:#081a39;}
+.sidebar{width:270px;background:#041024;padding:25px;display:flex;flex-direction:column;align-items:center;box-shadow:4px 0 20px rgba(0,0,0,0.3);}
+.sideLogo{width:120px;margin-bottom:10px;}
+.sidebar h2{margin:10px 0 5px 0;text-align:center;}
+.sidebar span{font-size:13px;opacity:.8;text-align:center;margin-bottom:30px;}
+.sidebar nav{width:100%;}
+.sidebar nav div{padding:14px;background:rgba(255,255,255,0.05);margin-bottom:10px;border-radius:12px;cursor:pointer;}
+.logoutBtn{margin-top:auto;width:100%;background:#b61d1d;}
+.mainContent{flex:1;padding:30px;background:linear-gradient(rgba(5,15,35,.86),rgba(5,15,35,.92)),url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1500&q=80');background-size:cover;}
+.hero h1{font-size:42px;margin-bottom:8px;}
+.statsGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin:30px 0;}
+.statBox{background:rgba(255,255,255,0.08);padding:30px;border-radius:20px;text-align:center;backdrop-filter:blur(8px);}
+.statBox h3{font-size:34px;margin:0;}
+.actionGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:25px;}
+.actionGrid button{width:100%;}
+.panelGrid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.panel{background:rgba(255,255,255,0.08);padding:25px;border-radius:20px;backdrop-filter:blur(8px);}
+.row{padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.1);}
+@media(max-width:900px){.statsGrid,.actionGrid,.panelGrid{grid-template-columns:1fr}.sidebar{display:none}}
