@@ -202,9 +202,8 @@ export default function App(){
               )}
             </tbody>
           </table>
-        </div>
-
-              {showModal && (
+        </div>      
+        {showModal && (
         <div className="modal-wrap">
           <div className="modal-box">
             <h3>Add {page}</h3>
