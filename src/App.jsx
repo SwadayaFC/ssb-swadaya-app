@@ -1,248 +1,227 @@
-import React,{useState,useEffect} from 'react';
-import './style.css';
+import React, { useEffect, useState } from "react";
+import "./style.css";
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbx6L0TpLHPGgb433UbYKOIOCKzVvf1-Vq2UXgl45qKYHLU8DQU4SHGHEJXT45AUqdyZ/exec';
+const API_URL = "https://script.google.com/macros/s/AKfycbzxb1MhJif6L9z1puDshlySKLk_Bu_0kbHZajNCNInme0OXPXL38ckDJsVDEQuxmtdz/exec";
 
-export default function App(){
+export default function App() {
+  const [page, setPage] = useState("login");
+  const [user, setUser] = useState(null);
 
-  const [loggedIn,setLoggedIn] = useState(false);
-  const [user,setUser] = useState(null);
-  const [loading,setLoading] = useState(false);
-  const [menu,setMenu] = useState('dashboard');
+  const [loginData, setLoginData] = useState({
+    username: "",
+    password: ""
+  });
 
-  const [dashboard,setDashboard] = useState({});
-  const [students,setStudents] = useState([]);
-  const [staff,setStaff] = useState([]);
-  const [payments,setPayments] = useState([]);
-  const [attendance,setAttendance] = useState([]);
-  const [schedule,setSchedule] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [staff, setStaff] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [schedule, setSchedule] = useState([]);
 
-  const [username,setUsername] = useState('');
-  const [password,setPassword] = useState('');
+  useEffect(() => {
+    const sess = localStorage.getItem("ssb_user");
+    if (sess) {
+      setUser(JSON.parse(sess));
+      setPage("dashboard");
+      loadAllData();
+    }
+  }, []);
 
-  /* =========================
-     UNIVERSAL API FETCH HOTFIX
-  ========================= */
-  async function api(action,data={}){
-    try{
-      const res = await fetch(API_URL,{
-        method:'POST',
-        redirect:'follow',
-        headers:{
-          'Content-Type':'text/plain;charset=utf-8'
-        },
-        body: JSON.stringify({
-          action:action,
-          data:data
-        })
+  async function apiCall(payload) {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
       });
 
       const txt = await res.text();
-      const json = JSON.parse(txt);
-      return json;
-
-    }catch(err){
-      return {
-        success:false,
-        message:'Frontend Fetch Error',
-        error:String(err)
-      };
+      return JSON.parse(txt);
+    } catch (err) {
+      console.log(err);
+      alert("SERVER ERROR");
+      return null;
     }
   }
 
-  /* =========================
-     LOGIN USER
-  ========================= */
-  async function handleLogin(){
-    if(!username || !password){
-      alert('Isi username dan password');
+  async function handleLogin() {
+    if (!loginData.username || !loginData.password) {
+      alert("Lengkapi login");
       return;
     }
 
-    setLoading(true);
-
-    const res = await api('login',{
-      username:username,
-      password:password
+    const result = await apiCall({
+      action: "login",
+      username: loginData.username,
+      password: loginData.password
     });
 
-    setLoading(false);
-
-    if(res.success){
-      setLoggedIn(true);
-      setUser(res.user);
-      loadDashboard();
-    }else{
-      alert(res.message || 'Login gagal');
+    if (result && result.success) {
+      localStorage.setItem("ssb_user", JSON.stringify(result.user));
+      setUser(result.user);
+      setPage("dashboard");
+      loadAllData();
+    } else {
+      alert(result ? result.message : "Login gagal");
     }
   }
 
-  function logout(){
-    setLoggedIn(false);
-    setUser(null);
-    setMenu('dashboard');
-    setUsername('');
-    setPassword('');
+  async function loadAllData() {
+    const s1 = await apiCall({ action: "getStudents" });
+    const s2 = await apiCall({ action: "getStaff" });
+    const s3 = await apiCall({ action: "getPayments" });
+    const s4 = await apiCall({ action: "getAttendance" });
+    const s5 = await apiCall({ action: "getSchedule" });
+
+    setStudents(s1?.data || []);
+    setStaff(s2?.data || []);
+    setPayments(s3?.data || []);
+    setAttendance(s4?.data || []);
+    setSchedule(s5?.data || []);
   }
 
-  /* =========================
-     LOAD DASHBOARD
-  ========================= */
-  async function loadDashboard(){
-    setLoading(true);
-
-    const db = await api('getDashboard');
-    const st = await api('getStudents');
-    const sf = await api('getStaff');
-    const py = await api('getPayments');
-    const at = await api('getAttendance');
-    const sc = await api('getSchedule');
-
-    setDashboard(db);
-    setStudents(st.data || []);
-    setStaff(sf.data || []);
-    setPayments(py.data || []);
-    setAttendance(at.data || []);
-    setSchedule(sc.data || []);
-
-    setLoading(false);
+  function logout() {
+    localStorage.removeItem("ssb_user");
+    location.reload();
   }
 
-  useEffect(()=>{
-    if(loggedIn){
-      loadDashboard();
-    }
-  },[loggedIn]);
+  function addStudent() {
+    const id = prompt("ID Student");
+    const name = prompt("Nama");
+    const group = prompt("Kelompok Tahun");
+    const parent = prompt("Nama Orang Tua");
+    const phone = prompt("No HP");
 
-  /* =========================
-     LOGIN SCREEN
-  ========================= */
-  if(!loggedIn){
-    return(
-      <div className="login-page">
-        <div className="login-box">
-          <img
-            src="https://drive.google.com/uc?export=view&id=1x2wcr8kQUTKY9oxABkOrKeW5ras0Xc8A"
-            alt="logo"
-            className="login-logo"
-          />
-          <h2>SSB SWADAYA FC LOGIN</h2>
+    if (!id) return;
 
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e)=>setUsername(e.target.value)}
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e)=>setPassword(e.target.value)}
-          />
-
-          <button onClick={handleLogin}>
-            {loading ? 'PROCESSING...' : 'LOGIN'}
-          </button>
-        </div>
-      </div>
-    );
+    apiCall({
+      action: "addStudent",
+      payload: { id, name, group, parent, phone }
+    }).then(loadAllData);
   }
 
-  function renderTable(title,data){
-    return(
+  function addStaff() {
+    const id = prompt("ID Staff");
+    const name = prompt("Nama Staff");
+    const position = prompt("Posisi");
+    const phone = prompt("No HP");
+
+    if (!id) return;
+
+    apiCall({
+      action: "addStaff",
+      payload: { id, name, position, phone }
+    }).then(loadAllData);
+  }
+
+  function addPayment() {
+    const id = prompt("ID Payment");
+    const student = prompt("Nama Student");
+    const month = prompt("Bulan");
+    const amount = prompt("Jumlah");
+    const status = prompt("Status");
+
+    if (!id) return;
+
+    apiCall({
+      action: "addPayment",
+      payload: { id, student, month, amount, status }
+    }).then(loadAllData);
+  }
+
+  function addAttendance() {
+    const id = prompt("ID Attendance");
+    const student = prompt("Nama Student");
+    const date = prompt("Tanggal");
+    const status = prompt("Status Hadir/Izin/Alfa");
+
+    if (!id) return;
+
+    apiCall({
+      action: "addAttendance",
+      payload: { id, student, date, status }
+    }).then(loadAllData);
+  }
+
+  function addSchedule() {
+    const id = prompt("ID Schedule");
+    const title = prompt("Judul Jadwal");
+    const date = prompt("Tanggal");
+    const time = prompt("Jam");
+    const location = prompt("Lokasi");
+
+    if (!id) return;
+
+    apiCall({
+      action: "addSchedule",
+      payload: { id, title, date, time, location }
+    }).then(loadAllData);
+  }
+
+  function renderTable(title, data, addFunc) {
+    return (
       <div className="module-box">
         <div className="module-head">
-          <h3>{title}</h3>
-          <button onClick={()=>alert('Form tambah data akan kita aktifkan di phase berikutnya')}>+ Add Data</button>
+          <h2>{title}</h2>
+          <button onClick={addFunc}>+ Add Data</button>
         </div>
 
         <table>
           <thead>
             <tr>
               {data.length > 0 &&
-                Object.keys(data[0]).map((h,i)=>(
-                  <th key={i}>{h}</th>
-                ))
-              }
-              {data.length > 0 && <th>Aksi</th>}
+                Object.keys(data[0]).map((h, i) => <th key={i}>{h}</th>)}
             </tr>
           </thead>
-
           <tbody>
             {data.length === 0 ? (
-              <tr><td colSpan="20">No Data</td></tr>
+              <tr><td colSpan="10">No Data</td></tr>
             ) : (
-              data.map((row,i)=>(
+              data.map((r, i) => (
                 <tr key={i}>
-                  {Object.values(row).map((v,j)=>(
-                    <td key={j}>{v}</td>
-                  ))}
-                  <td>
-                    <button
-                      className="delete-btn"
-                      onClick={()=>alert('Delete module akan kita aktifkan di phase berikutnya')}
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  {Object.values(r).map((v, j) => <td key={j}>{v}</td>)}
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
-    )
+    );
   }
 
-  function renderPage(){
+  if (page === "login") {
+    return (
+      <div className="login-page">
+        <div className="login-box">
+          <img
+            src="https://drive.google.com/uc?export=view&id=1x2wcr8kQUTKY9oxABkOrKeW5ras0Xc8A"
+            className="login-logo"
+          />
+          <h2>SSB SWADAYA FC LOGIN</h2>
 
-    if(menu === 'dashboard'){
-      return(
-        <>
-          <div className="cards">
-            <div className="card blue">
-              <span>{dashboard.students || 0}</span>
-              <p>Total Students</p>
-            </div>
+          <input
+            placeholder="Username"
+            value={loginData.username}
+            onChange={(e) =>
+              setLoginData({ ...loginData, username: e.target.value })
+            }
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={loginData.password}
+            onChange={(e) =>
+              setLoginData({ ...loginData, password: e.target.value })
+            }
+          />
 
-            <div className="card green">
-              <span>{dashboard.staff || 0}</span>
-              <p>Total Staff</p>
-            </div>
-
-            <div className="card orange">
-              <span>{dashboard.payments || 0}</span>
-              <p>Total Payments</p>
-            </div>
-
-            <div className="card purple">
-              <span>{dashboard.attendance || 0}</span>
-              <p>Total Attendance</p>
-            </div>
-
-            <div className="card red">
-              <span>{dashboard.schedule || 0}</span>
-              <p>Total Schedule</p>
-            </div>
-          </div>
-
-          {renderTable('Recent Students',students.slice(0,5))}
-        </>
-      )
-    }
-
-    if(menu === 'students') return renderTable('Students Management',students);
-    if(menu === 'staff') return renderTable('Staff Management',staff);
-    if(menu === 'payments') return renderTable('Payments Management',payments);
-    if(menu === 'attendance') return renderTable('Attendance Management',attendance);
-    if(menu === 'schedule') return renderTable('Schedule Management',schedule);
+          <button onClick={handleLogin}>LOGIN</button>
+        </div>
+      </div>
+    );
   }
 
-  return(
+  return (
     <div className="app-shell">
-
       <aside className="sidebar">
         <div className="brand-area">
           <img
@@ -252,12 +231,12 @@ export default function App(){
           <h2>SWADAYA FC</h2>
         </div>
 
-        <button onClick={()=>setMenu('dashboard')}>Dashboard</button>
-        <button onClick={()=>setMenu('students')}>Students</button>
-        <button onClick={()=>setMenu('staff')}>Staff</button>
-        <button onClick={()=>setMenu('payments')}>Payments</button>
-        <button onClick={()=>setMenu('attendance')}>Attendance</button>
-        <button onClick={()=>setMenu('schedule')}>Schedule</button>
+        <button onClick={() => setPage("dashboard")}>Dashboard</button>
+        <button onClick={() => setPage("students")}>Students</button>
+        <button onClick={() => setPage("staff")}>Staff</button>
+        <button onClick={() => setPage("payments")}>Payments</button>
+        <button onClick={() => setPage("attendance")}>Attendance</button>
+        <button onClick={() => setPage("schedule")}>Schedule</button>
         <button onClick={logout}>Logout</button>
       </aside>
 
@@ -267,8 +246,36 @@ export default function App(){
           <span>Welcome, {user?.name}</span>
         </div>
 
-        {loading ? <h3>Loading data...</h3> : renderPage()}
+                <div className="cards">
+          <div className="card blue">
+            <span>{students.length}</span>
+            <p>Students</p>
+          </div>
+          <div className="card green">
+            <span>{staff.length}</span>
+            <p>Staff</p>
+          </div>
+          <div className="card orange">
+            <span>{payments.length}</span>
+            <p>Payments</p>
+          </div>
+          <div className="card purple">
+            <span>{attendance.length}</span>
+            <p>Attendance</p>
+          </div>
+          <div className="card red">
+            <span>{schedule.length}</span>
+            <p>Schedule</p>
+          </div>
+        </div>
+
+        {page === "dashboard" && renderTable("Recent Students", students, addStudent)}
+        {page === "students" && renderTable("Students Management", students, addStudent)}
+        {page === "staff" && renderTable("Staff Management", staff, addStaff)}
+        {page === "payments" && renderTable("Payments Management", payments, addPayment)}
+        {page === "attendance" && renderTable("Attendance Management", attendance, addAttendance)}
+        {page === "schedule" && renderTable("Schedule Management", schedule, addSchedule)}
       </main>
     </div>
-  )
+  );
 }
