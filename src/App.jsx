@@ -1,235 +1,274 @@
-import React, { useEffect, useState } from "react";
-import {
-  login,
-  getDashboard,
-  getStudents,
-  getStaff,
-  getPayments,
-  getAttendance,
-  getSchedule,
-  addStudent,
-  addStaff,
-  addPayment,
-  addAttendance,
-  addSchedule,
-  deleteStudent,
-  deleteStaff,
-  deletePayment,
-  deleteAttendance,
-  deleteSchedule
-} from "./services/api";
-import "./index.css";
+import React,{useState,useEffect} from 'react';
+import './style.css';
+
+const API_URL = 'https://script.google.com/macros/s/AKfycbx6L0TpLHPGgb433UbYKOIOCKzVvf1-Vq2UXgl45qKYHLU8DQU4SHGHEJXT45AUqdyZ/exec';
 
 export default function App(){
 
+  const [loggedIn,setLoggedIn] = useState(false);
   const [user,setUser] = useState(null);
-  const [page,setPage] = useState("dashboard");
+  const [loading,setLoading] = useState(false);
+  const [menu,setMenu] = useState('dashboard');
+
   const [dashboard,setDashboard] = useState({});
-  const [rows,setRows] = useState([]);
-  const [showModal,setShowModal] = useState(false);
-  const [form,setForm] = useState({});
+  const [students,setStudents] = useState([]);
+  const [staff,setStaff] = useState([]);
+  const [payments,setPayments] = useState([]);
+  const [attendance,setAttendance] = useState([]);
+  const [schedule,setSchedule] = useState([]);
 
-  useEffect(()=>{
-    if(user){
-      loadDashboard();
-      loadPage(page);
+  const [username,setUsername] = useState('');
+  const [password,setPassword] = useState('');
+
+  /* =========================
+     UNIVERSAL API FETCH HOTFIX
+  ========================= */
+  async function api(action,data={}){
+    try{
+      const res = await fetch(API_URL,{
+        method:'POST',
+        redirect:'follow',
+        headers:{
+          'Content-Type':'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action:action,
+          data:data
+        })
+      });
+
+      const txt = await res.text();
+      const json = JSON.parse(txt);
+      return json;
+
+    }catch(err){
+      return {
+        success:false,
+        message:'Frontend Fetch Error',
+        error:String(err)
+      };
     }
-  },[user,page]);
+  }
 
+  /* =========================
+     LOGIN USER
+  ========================= */
   async function handleLogin(){
-    const res = await login(form.username,form.password);
-    if(res.success){
-      setUser(res.user);
-      setForm({});
-    }else{
-      alert("Login gagal");
-    }
-  }
-
-  async function loadDashboard(){
-    const res = await getDashboard();
-    if(res.success) setDashboard(res.data);
-  }
-
-  async function loadPage(target){
-    let res;
-
-    if(target==="students") res = await getStudents();
-    if(target==="staff") res = await getStaff();
-    if(target==="payments") res = await getPayments();
-    if(target==="attendance") res = await getAttendance();
-    if(target==="schedule") res = await getSchedule();
-
-    if(target==="dashboard"){
-      const s = await getStudents();
-      if(s.success) setRows(s.data.slice(0,5));
+    if(!username || !password){
+      alert('Isi username dan password');
       return;
     }
 
-    if(res && res.success){
-      setRows(res.data);
-    }
-  }
+    setLoading(true);
 
-  async function submitAdd(){
-    let res;
+    const res = await api('login',{
+      username:username,
+      password:password
+    });
 
-    if(page==="students") res = await addStudent(form);
-    if(page==="staff") res = await addStaff(form);
-    if(page==="payments") res = await addPayment(form);
-    if(page==="attendance") res = await addAttendance(form);
-    if(page==="schedule") res = await addSchedule(form);
+    setLoading(false);
 
     if(res.success){
-      alert("Data berhasil ditambah");
-      setShowModal(false);
-      setForm({});
+      setLoggedIn(true);
+      setUser(res.user);
       loadDashboard();
-      loadPage(page);
+    }else{
+      alert(res.message || 'Login gagal');
     }
   }
 
-  async function submitDelete(id){
-    if(!window.confirm("Hapus data ini?")) return;
-
-    let res;
-
-    if(page==="students") res = await deleteStudent(id);
-    if(page==="staff") res = await deleteStaff(id);
-    if(page==="payments") res = await deletePayment(id);
-    if(page==="attendance") res = await deleteAttendance(id);
-    if(page==="schedule") res = await deleteSchedule(id);
-
-    if(res.success){
-      loadDashboard();
-      loadPage(page);
-    }
+  function logout(){
+    setLoggedIn(false);
+    setUser(null);
+    setMenu('dashboard');
+    setUsername('');
+    setPassword('');
   }
 
-  if(!user){
-    return (
+  /* =========================
+     LOAD DASHBOARD
+  ========================= */
+  async function loadDashboard(){
+    setLoading(true);
+
+    const db = await api('getDashboard');
+    const st = await api('getStudents');
+    const sf = await api('getStaff');
+    const py = await api('getPayments');
+    const at = await api('getAttendance');
+    const sc = await api('getSchedule');
+
+    setDashboard(db);
+    setStudents(st.data || []);
+    setStaff(sf.data || []);
+    setPayments(py.data || []);
+    setAttendance(at.data || []);
+    setSchedule(sc.data || []);
+
+    setLoading(false);
+  }
+
+  useEffect(()=>{
+    if(loggedIn){
+      loadDashboard();
+    }
+  },[loggedIn]);
+
+  /* =========================
+     LOGIN SCREEN
+  ========================= */
+  if(!loggedIn){
+    return(
       <div className="login-page">
         <div className="login-box">
-          <img src="/logo.png" className="login-logo" />
+          <img
+            src="https://drive.google.com/uc?export=view&id=1x2wcr8kQUTKY9oxABkOrKeW5ras0Xc8A"
+            alt="logo"
+            className="login-logo"
+          />
           <h2>SSB SWADAYA FC LOGIN</h2>
 
           <input
+            type="text"
             placeholder="Username"
-            value={form.username || ""}
-            onChange={(e)=>setForm({...form,username:e.target.value})}
+            value={username}
+            onChange={(e)=>setUsername(e.target.value)}
           />
 
           <input
-            placeholder="Password"
             type="password"
-            value={form.password || ""}
-            onChange={(e)=>setForm({...form,password:e.target.value})}
+            placeholder="Password"
+            value={password}
+            onChange={(e)=>setPassword(e.target.value)}
           />
 
-          <button onClick={handleLogin}>LOGIN</button>
+          <button onClick={handleLogin}>
+            {loading ? 'PROCESSING...' : 'LOGIN'}
+          </button>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="app-shell">
-
-      <div className="sidebar">
-        <img src="/logo.png" className="sidebar-logo"/>
-        <h2>SWADAYA FC</h2>
-
-        <button onClick={()=>setPage("dashboard")}>🏠 Dashboard</button>
-        <button onClick={()=>setPage("students")}>🧒 Students</button>
-        <button onClick={()=>setPage("staff")}>👔 Staff</button>
-        <button onClick={()=>setPage("payments")}>💳 Payments</button>
-        <button onClick={()=>setPage("attendance")}>📅 Attendance</button>
-        <button onClick={()=>setPage("schedule")}>🗓 Schedule</button>
-        <button onClick={()=>setUser(null)}>🚪 Logout</button>
-      </div>
-
-      <div className="content">
-        <h1>SSB SWADAYA FC MANAGEMENT SYSTEM</h1>
-        <p>Welcome back, {user.name}</p>
-
-        <div className="cards">
-          <div className="card blue">Students<br/>{dashboard.students || 0}</div>
-          <div className="card green">Staff<br/>{dashboard.staff || 0}</div>
-          <div className="card orange">Payments<br/>{dashboard.payments || 0}</div>
-          <div className="card purple">Attendance<br/>{dashboard.attendance || 0}</div>
-          <div className="card red">Schedule<br/>{dashboard.schedule || 0}</div>
+  function renderTable(title,data){
+    return(
+      <div className="module-box">
+        <div className="module-head">
+          <h3>{title}</h3>
+          <button onClick={()=>alert('Form tambah data akan kita aktifkan di phase berikutnya')}>+ Add Data</button>
         </div>
 
-        <div className="table-box">
-          <div className="table-head">
-            <h2>{page.toUpperCase()} MANAGEMENT</h2>
-            {page!=="dashboard" && (
-              <button onClick={()=>setShowModal(true)}>+ Add Data</button>
-            )}
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                {rows.length > 0 &&
-                  Object.keys(rows[0]).map((k,i)=><th key={i}>{k}</th>)
-                }
-                {page!=="dashboard" && rows.length>0 && <th>action</th>}
-              </tr>
-            </thead>
-
-            <tbody>
-              {rows.length===0 ? (
-                <tr>
-                  <td colSpan="20">No Data Available</td>
-                </tr>
-              ) : (
-                rows.map((r,i)=>(
-                  <tr key={i}>
-                    {Object.values(r).map((v,j)=><td key={j}>{v}</td>)}
-                    {page!=="dashboard" && (
-                      <td>
-                        <button
-                          className="delete-btn"
-                          onClick={()=>submitDelete(r.id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    )}
-                  </tr>
+        <table>
+          <thead>
+            <tr>
+              {data.length > 0 &&
+                Object.keys(data[0]).map((h,i)=>(
+                  <th key={i}>{h}</th>
                 ))
-              )}
-            </tbody>
-          </table>
-        </div>      
-        {showModal && (
-        <div className="modal-wrap">
-          <div className="modal-box">
-            <h3>Add {page}</h3>
+              }
+              {data.length > 0 && <th>Aksi</th>}
+            </tr>
+          </thead>
 
-            <textarea
-              placeholder="Input JSON data sesuai header sheet.
-Contoh:
-{name:'Budi',group:'2016',parent:'Agus'}"
-              rows="10"
-              onChange={(e)=>{
-                try{
-                  const txt = e.target.value;
-                  const json = eval("("+txt+")");
-                  setForm(json);
-                }catch(err){}
-              }}
-            />
+          <tbody>
+            {data.length === 0 ? (
+              <tr><td colSpan="20">No Data</td></tr>
+            ) : (
+              data.map((row,i)=>(
+                <tr key={i}>
+                  {Object.values(row).map((v,j)=>(
+                    <td key={j}>{v}</td>
+                  ))}
+                  <td>
+                    <button
+                      className="delete-btn"
+                      onClick={()=>alert('Delete module akan kita aktifkan di phase berikutnya')}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
 
-            <div className="modal-actions">
-              <button onClick={submitAdd}>Save</button>
-              <button onClick={()=>setShowModal(false)}>Cancel</button>
+  function renderPage(){
+
+    if(menu === 'dashboard'){
+      return(
+        <>
+          <div className="cards">
+            <div className="card blue">
+              <span>{dashboard.students || 0}</span>
+              <p>Total Students</p>
+            </div>
+
+            <div className="card green">
+              <span>{dashboard.staff || 0}</span>
+              <p>Total Staff</p>
+            </div>
+
+            <div className="card orange">
+              <span>{dashboard.payments || 0}</span>
+              <p>Total Payments</p>
+            </div>
+
+            <div className="card purple">
+              <span>{dashboard.attendance || 0}</span>
+              <p>Total Attendance</p>
+            </div>
+
+            <div className="card red">
+              <span>{dashboard.schedule || 0}</span>
+              <p>Total Schedule</p>
             </div>
           </div>
-        </div>
-      )}
 
+          {renderTable('Recent Students',students.slice(0,5))}
+        </>
+      )
+    }
+
+    if(menu === 'students') return renderTable('Students Management',students);
+    if(menu === 'staff') return renderTable('Staff Management',staff);
+    if(menu === 'payments') return renderTable('Payments Management',payments);
+    if(menu === 'attendance') return renderTable('Attendance Management',attendance);
+    if(menu === 'schedule') return renderTable('Schedule Management',schedule);
+  }
+
+  return(
+    <div className="app-shell">
+
+      <aside className="sidebar">
+        <div className="brand-area">
+          <img
+            src="https://drive.google.com/uc?export=view&id=1x2wcr8kQUTKY9oxABkOrKeW5ras0Xc8A"
+            className="side-logo"
+          />
+          <h2>SWADAYA FC</h2>
+        </div>
+
+        <button onClick={()=>setMenu('dashboard')}>Dashboard</button>
+        <button onClick={()=>setMenu('students')}>Students</button>
+        <button onClick={()=>setMenu('staff')}>Staff</button>
+        <button onClick={()=>setMenu('payments')}>Payments</button>
+        <button onClick={()=>setMenu('attendance')}>Attendance</button>
+        <button onClick={()=>setMenu('schedule')}>Schedule</button>
+        <button onClick={logout}>Logout</button>
+      </aside>
+
+      <main className="main-content">
+        <div className="topbar">
+          <h1>SSB SWADAYA FC MANAGEMENT SYSTEM</h1>
+          <span>Welcome, {user?.name}</span>
+        </div>
+
+        {loading ? <h3>Loading data...</h3> : renderPage()}
+      </main>
     </div>
-  );
+  )
 }
