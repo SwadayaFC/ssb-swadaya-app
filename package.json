@@ -1,7 +1,7 @@
 {
-  "name": "ssb-swadaya-v5-pro",
+  "name": "ssb-swadaya-v8-merged-final",
   "private": true,
-  "version": "5.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,6 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "vite": "^5.4.21",
-    "@vitejs/plugin-react": "^4.3.1"
+    "vite": "^5.0.0"
   }
 }
