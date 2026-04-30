@@ -1,1 +1,10 @@
-import React from "react"; export default function App(){return <div><img src="/logo.png" width="100"/><h1>MERGED FINAL V8 READY</h1><p>Integrated admin system source package.</p></div>}
+import React from 'react';
+export default function App() {
+  return (
+    <div className="wrap">
+      <img src="/logo.png" className="logo" />
+      <h1>SSB SWADAYA FC V9 CLEAN BUILD</h1>
+      <p>Compile-ready deployment package.</p>
+    </div>
+  );
+}
