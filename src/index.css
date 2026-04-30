@@ -1,1 +1,1 @@
-body{margin:0}
+body{margin:0;font-family:Arial;background:#edf2f7} .login-page{min-height:100vh;display:flex;justify-content:center;align-items:center;background:#0f172a}.login-box{width:390px;background:#fff;padding:35px;border-radius:20px;text-align:center}.logo{width:100px}.login-box input,.login-box button{width:100%;padding:12px;margin:10px 0}.dashboard{padding:30px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
