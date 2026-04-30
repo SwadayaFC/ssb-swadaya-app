@@ -1,7 +1,7 @@
 {
-  "name": "ssb-v14-safe",
+  "name": "ssb-swadaya-fc-v151",
   "private": true,
-  "version": "1.4.1",
+  "version": "1.5.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
