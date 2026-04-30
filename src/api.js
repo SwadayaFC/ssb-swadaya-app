@@ -1,0 +1,3 @@
+const API_URL='https://script.google.com/macros/s/AKfycbzRAOKiIS1cPdOXEVKrazaISTWVo9znS7zx02nM2nM_EG9fEG1kkAXus8TTuHHnJqmn/exec';
+export async function apiGet(action){const res=await fetch(`${API_URL}?action=${action}`);return await res.json();}
+export async function apiPost(payload){const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});return await res.json();}
