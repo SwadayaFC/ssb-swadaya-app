@@ -1,1 +1,1 @@
-// api placeholder
+const API_URL='https://script.google.com/macros/s/AKfycbzRAOKiIS1cPdOXEVKrazaISTWVo9znS7zx02nM2nM_EG9fEG1kkAXus8TTuHHnJqmn/exec'; export async function apiGet(a){const r=await fetch(`${API_URL}?action=${a}`);return await r.json()} export async function apiPost(p){const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});return await r.json()}
