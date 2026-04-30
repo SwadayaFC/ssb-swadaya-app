@@ -1,2 +1,6 @@
-import React from 'react';
-export default function App(){return(<div className='wrap'><h1>SSB SWADAYA FC V10 VERIFIED</h1><p>Vite Verified Package Ready</p></div>)}
+import React,{useEffect,useState} from 'react';
+import { apiGet, apiPost } from './services/api';
+function LoginPage({onLogin}){const [username,setUsername]=useState('');const [password,setPassword]=useState('');
+async function submit(e){e.preventDefault();const res=await apiPost({action:'login',username,password});if(res.status){localStorage.setItem('ssbUser',JSON.stringify(res));onLogin(res);}else alert('Login gagal');}
+return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#0f172a'}}><form onSubmit={submit} style={{background:'#fff',padding:30,borderRadius:20,width:360,textAlign:'center'}}><img src='/logo.png' style={{width:90,marginBottom:15}}/><h2>SSB SWADAYA FC LOGIN</h2><input placeholder='Username' value={username} onChange={e=>setUsername(e.target.value)} style={{width:'100%',padding:10,margin:'10px 0'}}/><input type='password' placeholder='Password' value={password} onChange={e=>setPassword(e.target.value)} style={{width:'100%',padding:10,margin:'10px 0'}}/><button style={{width:'100%',padding:10}}>LOGIN</button></form></div>}
+export default function App(){const [user,setUser]=useState(JSON.parse(localStorage.getItem('ssbUser'))||null);const [students,setStudents]=useState([]);useEffect(()=>{if(user){apiGet('getStudents').then(setStudents)}},[user]); if(!user) return <LoginPage onLogin={setUser}/>; return <div style={{padding:20}}><img src='/logo.png' style={{width:70}}/><h1>SSB SWADAYA FC ADMIN SYSTEM</h1><p>Total Students: {students.length}</p></div>}
