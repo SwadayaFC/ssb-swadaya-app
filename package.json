@@ -1,7 +1,7 @@
 {
-  "name": "ssb-v162",
+  "name": "ssb-swadaya-fc-v17",
   "private": true,
-  "version": "1.6.2",
+  "version": "17.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "vite": "^5.4.0",
-    "@vitejs/plugin-react": "^4.3.1"
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
   }
 }
