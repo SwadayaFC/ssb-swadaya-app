@@ -157,59 +157,132 @@ export default function App() {
   }
 }
 
-  function Dashboard(){
-    return (
-      <>
-        <div className="Banner" style={{
-  backgroundImage:`linear-gradient(rgba(2,8,25,.65),rgba(2,8,25,.65)), url(${HERO_BG})`,
-  backgroundSize:'cover',
-  backgroundPosition:'center',
-  borderRadius:'20px',
-  padding:'35px'
-}}
-          <div>
-            <h1>Welcome Back, Admin</h1>
-            <p>Kelola akademi sepak bola dengan sistem enterprise modern.</p>
-          </div>
-        </div>
+  function Dashboard({ user, onLogout }) {
+  const [data,setData] = useState({
+    students:[],
+    attendance:[],
+    payments:[],
+    schedule:[],
+    announcements:[]
+  });
 
-        <div className="summaryGrid">
-          <div className="sumCard">
-            <div className="sumIcon">👥</div>
-            <div>
-              <span>Total Siswa</span>
-              <h2>{data.students.length}</h2>
-            </div>
-          </div>
+  const [menu,setMenu] = useState('dashboard');
 
-          <div className="sumCard">
-            <div className="sumIcon">📅</div>
-            <div>
-              <span>Absensi</span>
-              <h2>{data.attendance.length}</h2>
-            </div>
-          </div>
-
-          <div className="sumCard">
-            <div className="sumIcon">💳</div>
-            <div>
-              <span>Pembayaran</span>
-              <h2>{data.payments.length}</h2>
-            </div>
-          </div>
-
-          <div className="sumCard">
-            <div className="sumIcon">📢</div>
-            <div>
-              <span>Pengumuman</span>
-              <h2>{data.announcements.length}</h2>
-            </div>
-          </div>
-        </div>
-      </>
-    );
+  async function loadAllData(){
+    const res = await api('getAllData');
+    if(res.success){
+      setData(res.data);
+    }else{
+      alert(res.message);
+    }
   }
 
+  useEffect(()=>{
+    loadAllData();
+  },[]);
+
+  const totalStudents = data.students.length;
+  const totalAttendance = data.attendance.length;
+  const totalPayments = data.payments.length;
+  const totalAnnouncements = data.announcements.length;
+
+  return (
+    <div className="layout">
+
+      <aside className="sidebar">
+        <img src={LOGO_URL} alt="logo" style={{width:'95px',margin:'10px auto',display:'block'}} />
+        <h2>SSB SWADAYA FC</h2>
+        <p>Football Academy</p>
+
+        <button onClick={()=>setMenu('dashboard')}>🏠 Dashboard</button>
+        <button onClick={()=>setMenu('students')}>👥 Data Siswa</button>
+        <button onClick={()=>setMenu('attendance')}>🗓️ Absensi</button>
+        <button onClick={()=>setMenu('payments')}>💳 Pembayaran</button>
+        <button onClick={()=>setMenu('schedule')}>📅 Jadwal</button>
+        <button onClick={()=>setMenu('announcements')}>📢 Pengumuman</button>
+
+        <div className="sidebar-user">
+          <strong>{user.name}</strong>
+          <span>{user.role}</span>
+        </div>
+
+        <div className="motto-box">
+          🏆<br/>Disiplin, Kerja Keras,<br/>Sportif Menuju Prestasi
+        </div>
+
+        <button className="logout-btn" onClick={onLogout}>Logout</button>
+      </aside>
+
+      <main className="content">
+                {menu === 'dashboard' && (
+          <>
+            <div
+              className="hero"
+              style={{
+                backgroundImage:`linear-gradient(rgba(2,8,25,.65),rgba(2,8,25,.65)), url(${HERO_BG})`,
+                backgroundSize:'cover',
+                backgroundPosition:'center'
+              }}
+            >
+              <h1>Welcome Back, {user.name}</h1>
+              <p>Kelola akademi sepak bola dengan sistem enterprise modern.</p>
+            </div>
+
+            <div className="stats-grid">
+              <div className="stat-card">👥<h3>{totalStudents}</h3><span>Total Siswa</span></div>
+              <div className="stat-card">📅<h3>{totalAttendance}</h3><span>Absensi</span></div>
+              <div className="stat-card">💳<h3>{totalPayments}</h3><span>Pembayaran</span></div>
+              <div className="stat-card">📢<h3>{totalAnnouncements}</h3><span>Pengumuman</span></div>
+            </div>
+
+            <div className="quick-grid">
+              <button>+ Tambah Siswa</button>
+              <button>+ Input Absensi</button>
+              <button>+ Input Pembayaran</button>
+              <button>+ Jadwal Latihan</button>
+            </div>
+
+            <div className="panel-grid">
+              <div className="panel">
+                <h3>👥 Data Siswa Terbaru</h3>
+                {data.students.slice(0,5).map((s,i)=>(
+                  <div key={i} className="list-row">{s.name} <span>{s.group}</span></div>
+                ))}
+              </div>
+
+              <div className="panel">
+                <h3>🗓️ Absensi Hari Ini</h3>
+                {data.attendance.slice(0,5).map((a,i)=>(
+                  <div key={i} className="list-row">{a.studentName} <span>{a.status}</span></div>
+                ))}
+              </div>
+
+              <div className="panel">
+                <h3>💳 Pembayaran Terbaru</h3>
+                {data.payments.slice(0,5).map((p,i)=>(
+                  <div key={i} className="list-row">{p.studentName} <span>{p.amount}</span></div>
+                ))}
+              </div>
+
+              <div className="panel">
+                <h3>📢 Pengumuman Terbaru</h3>
+                {data.announcements.slice(0,5).map((n,i)=>(
+                  <div key={i} className="list-row">{n.title}</div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+        {menu !== 'dashboard' && (
+          <div className="panel">
+            <h2>{menu.toUpperCase()} MANAGEMENT</h2>
+            <p>Halaman {menu} aktif dan tersambung database Google Sheet.</p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
   function StudentsPage(){
     return (
       <div className="tablePage">
