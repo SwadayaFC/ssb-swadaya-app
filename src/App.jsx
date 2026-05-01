@@ -6,27 +6,23 @@ const LOGO_URL = 'https://drive.google.com/uc?export=view&id=1x2wcr8kQUTKY9oxABk
 const HERO_BG = 'https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?q=80&w=1600&auto=format&fit=crop';
 
 async function api(action, payload = {}) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action, ...payload })
-  });
-  return await res.json();
-}
+  try{
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify({ action, ...payload })
+    });
 
-function Modal({ show, title, children, onClose }) {
-  if (!show) return null;
-  return (
-    <div className="modalOverlay">
-      <div className="modalBox">
-        <div className="modalHead">
-          <h3>{title}</h3>
-          <button onClick={onClose}>✕</button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
+    return await res.json();
+  }catch(err){
+    return {
+      success:false,
+      message:'Koneksi ke Google Apps Script gagal'
+    };
+  }
 }
 
 function LoginPage({ onSuccess }) {
@@ -34,9 +30,12 @@ function LoginPage({ onSuccess }) {
   const [password, setPassword] = useState('admin123');
 
   async function submitLogin() {
-    const res = await api('login', { username, password });
-    if (res.success) onSuccess(res.user);
-    else alert(res.message);
+  const res = await api('login', { username, password });
+
+  if(res.success){
+    onSuccess(res.user);
+  }else{
+    alert(res.message);
   }
 
   return (
@@ -121,9 +120,14 @@ export default function App() {
   },[loggedIn]);
 
   async function loadAllData(){
-    const res = await api('getAllData');
-    if(res.success) setData(res.data);
+  const res = await api('getAllData');
+
+  if(res.success){
+    setData(res.data);
+  }else{
+    alert(res.message);
   }
+}
 
   async function saveStudent(){
     const res = await api('addStudent', studentForm);
@@ -143,11 +147,15 @@ export default function App() {
   }
 
   async function removeStudent(id){
-    if(!window.confirm('Hapus siswa ini?')) return;
-    const res = await api('deleteStudent',{id});
-    alert(res.message);
+  if(!window.confirm('Hapus siswa ini?')) return;
+
+  const res = await api('deleteStudent',{id});
+  alert(res.message);
+
+  if(res.success){
     loadAllData();
   }
+}
 
   function Dashboard(){
     return (
