@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './style.css';
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbwmDkiHuFEemLOfpbHH4Nh2XuLfOcqzJOpev-4cWSF-ogbnCBD7Mgbln492qIgYLSVU/exec';
-const LOGO_URL = '/logo.png';
-const HERO_BG = '/bg.jpg';
+const LOGO_URL = 'public/logo.png';
+const HERO_BG = 'public/bg.jpg';
 
 async function api(action, payload = {}) {
   try{
