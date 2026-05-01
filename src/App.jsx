@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './style.css';
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbwmDkiHuFEemLOfpbHH4Nh2XuLfOcqzJOpev-4cWSF-ogbnCBD7Mgbln492qIgYLSVU/exec';
-const LOGO_URL = 'https://drive.google.com/uc?export=view&id=1x2wcr8kQUTKY9oxABkOrKeW5ras0Xc8A';
-const HERO_BG = 'https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?q=80&w=1600&auto=format&fit=crop';
+const LOGO_URL = 'public/logo.png';
+const HERO_BG = 'public/bg.jpg';
 
 async function api(action, payload = {}) {
   try{
