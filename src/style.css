@@ -1,70 +1,320 @@
-*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif;}
-body{background:#0f172a;color:#fff;}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Segoe UI,sans-serif;
+}
 
-.loginScreen{min-height:100vh;background-size:cover;background-position:center;display:flex;justify-content:center;align-items:center;padding:20px;}
-.loginGlass{width:42EYHgEzWEdjJgYKAu8VjC4DohVYUMbvZ6Ua45MgSaYBTFv3725expKB69YsjM6Utj99E6Sn3LpcxQ4mNrwfrJLM5NGbWiQborder:1px solid rgba(255,255,255,.12);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45);}
-.clubLogo{width:100px;height:100px;object-fit:contain;margin-bottom:15px;}
-.loginGlass h1{font-size:30px;margin-bottom:8px;}
-.loginGlass p{color:#cbd5e1;margin-bottom:25px;}
-.loginGlass input{width:100%;padding:14px;margin-bottom:12px;border:none;border-radius:12px;background:rgba(255,255,255,.9);font-size:14px;}
-.loginGlass button{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(90deg,#2563eb,#1d4ed8);color:#fff;font-weight:700;cursor:pointer;}
+body{
+  background:#0f172a;
+  color:#fff;
+}
 
-.appShell{display:flex;min-height:100vh;background:#0b1120;}
-.sidebarV22{width:260px;background:#111827;padding:25px;display:flex;flex-direction:column;gap:20px;box-shadow:8px 0 25px rgba(0,0,0,.3);}
-.brandTop{text-align:center;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08);}
-.brandTop img{width:80px;height:80px;object-fit:contain;margin-bottom:10px;}
-.brandTop h2{font-size:22px;}
-.brandTop span{font-size:12px;color:#94a3b8;}
-.menuWrap{display:flex;flex-direction:column;gap:10px;}
-.menuBtn{padding:13px;border:none;border-radius:12px;background:rgba(255,255,255,.04);color:#fff;text-align:left;cursor:pointer;font-size:14px;}
-.menuBtn.active,.menuBtn:hover{background:#2563eb;}
-.userCard{margin-top:auto;background:rgba(255,255,255,.04);padding:15px;border-radius:14px;display:flex;flex-direction:column;}
-.userCard small{color:#94a3b8;}
-.logoutBtn{padding:12px;border:none;border-radius:12px;background:#dc2626;color:#fff;cursor:pointer;}
+.loginScreen{
+  min-height:100vh;
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
 
-.contentArea{flex:1;padding:25px;background:#0f172a;overflow-y:auto;}
-.heroBanner{height:180px;background-size:cover;background-position:center;border-radius:22px;padding:30px;display:flex;justify-content:space-between;align-items:flex-end;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-bottom:22px;}
-.heroBanner h1{font-size:34px;margin-bottom:8px;}
-.heroBanner p{color:#e2e8f0;}
-.heroDate{background:rgba(255,255,255,.1);padding:12px 18px;border-radius:12px;}
+.loginGlass{
+  width:420px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(14px);
+  padding:40px;
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,.12);
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
 
-.summaryGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:20px;}
-.sumCard{background:#111827;border-radius:20px;padding:20px;display:flex;gap:16px;align-items:center;box-shadow:0 8px 20px rgba(0,0,0,.25);}
-.sumIcon{width:55px;height:55px;border-radius:50%;display:flex;justify-content:center;align-items:center;background:#2563eb;font-size:24px;}
-.sumCard span{font-size:13px;color:#94a3b8;}
-.sumCard h2{margin-top:5px;font-size:24px;}
+.clubLogo{
+  width:100px;
+  height:100px;
+  object-fit:contain;
+  margin-bottom:15px;
+}
 
-.quickActions{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px;}
-.quickActions button{padding:14px;border:none;border-radius:14px;background:#1e293b;color:#fff;font-weight:600;cursor:pointer;}
-.quickActions button:hover{background:#2563eb;}
+.loginGlass h1{
+  font-size:30px;
+  margin-bottom:8px;
+}
 
-.gridTwo{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;}
-.panel{background:#111827;border-radius:22px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,.25);}
-.panelHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;font-size:18px;font-weight:700;}
-.modernTable{width:100%;border-collapse:collapse;}
-.modernTable th,.modernTable td{padding:12px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:13px;}
-.modernTable th{color:#94a3b8;}
-.badge{padding:5px 10px;border-radius:20px;font-size:12px;}
-.badge.active,.badge.hadir{background:#16a34a;}
-.badge.belum,.badge.tidak{background:#dc2626;}
-.activityList{display:flex;flex-direction:column;gap:12px;}
-.activityRow{display:flex;justify-content:space-between;padding:12px;background:rgba(255,255,255,.03);border-radius:12px;}
-.announceWrap{display:flex;flex-direction:column;gap:12px;}
-.announceItem{background:rgba(255,255,255,.03);padding:14px;border-radius:14px;}
-.announceItem h4{margin-bottom:6px;}
-.announceItem p{font-size:13px;color:#cbd5e1;}
-.tablePage{background:#111827;padding:25px;border-radius:22px;}
-.tablePage h2{margin-bottom:20px;}
-.footer{text-align:center;padding:30px 0;color:#64748b;font-size:13px;}
+.loginGlass p{
+  color:#cbd5e1;
+  margin-bottom:25px;
+}
 
-@media(max-width:1100px){
-.summaryGrid,.quickActions{grid-template-columns:repeat(2,1fr);}
-.gridTwo{grid-template-columns:1fr;}
-.sidebarV22{width:220px;}
+.loginGlass input,
+.modalBox input{
+  width:100%;
+  padding:14px;
+  margin-bottom:12px;
+  border:none;
+  border-radius:12px;
+  background:rgba(255,255,255,.9);
+  font-size:14px;
+}
+
+.loginGlass button,
+.modalBox button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(90deg,#2563eb,#1d4ed8);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.appShell{
+  display:flex;
+  min-height:100vh;
+  background:#0b1120;
+}
+
+.sidebarV22{
+  width:260px;
+  background:#111827;
+  padding:25px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.brandTop{
+  text-align:center;
+  padding-bottom:20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.brandTop img{
+  width:80px;
+  height:80px;
+  object-fit:contain;
+  margin-bottom:10px;
+}
+
+.brandTop h2{
+  font-size:22px;
+}
+
+.brandTop span{
+  font-size:12px;
+  color:#94a3b8;
+}
+
+.menuWrap{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.menuBtn{
+  padding:13px;
+  border:none;
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+  color:#fff;
+  text-align:left;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.menuBtn.active,
+.menuBtn:hover{
+  background:#2563eb;
+}
+
+.userCard{
+  margin-top:auto;
+  background:rgba(255,255,255,.04);
+  padding:15px;
+  border-radius:14px;
+  display:flex;
+  flex-direction:column;
+}
+
+.userCard small{
+  color:#94a3b8;
+}
+
+.logoutBtn{
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#dc2626;
+  color:#fff;
+  cursor:pointer;
+}
+
+.contentArea{
+  flex:1;
+  padding:25px;
+  overflow-y:auto;
+}
+
+.heroBanner{
+  height:180px;
+  background-size:cover;
+  background-position:center;
+  border-radius:22px;
+  padding:30px;
+  display:flex;
+  align-items:flex-end;
+  margin-bottom:22px;
+}
+
+.heroBanner h1{
+  font-size:34px;
+  margin-bottom:8px;
+}
+
+.heroBanner p{
+  color:#e2e8f0;
+}
+
+.summaryGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+
+.sumCard{
+  background:#111827;
+  border-radius:20px;
+  padding:20px;
+  display:flex;
+  gap:16px;
+  align-items:center;
+}
+
+.sumIcon{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#2563eb;
+  font-size:24px;
+}
+
+.sumCard span{
+  font-size:13px;
+  color:#94a3b8;
+}
+
+.sumCard h2{
+  margin-top:5px;
+  font-size:24px;
+}
+
+.tablePage{
+  background:#111827;
+  padding:25px;
+  border-radius:22px;
+}
+
+.topBarPage{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.topBarPage button{
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+}
+
+.modernTable{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.modernTable th,
+.modernTable td{
+  padding:12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  text-align:left;
+  font-size:13px;
+}
+
+.modernTable th{
+  color:#94a3b8;
+}
+
+.delBtn{
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  background:#dc2626;
+  color:#fff;
+  cursor:pointer;
+}
+
+.announceItem{
+  background:rgba(255,255,255,.03);
+  padding:14px;
+  border-radius:14px;
+  margin-bottom:12px;
+}
+
+.modalOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+}
+
+.modalBox{
+  width:430px;
+  background:#111827;
+  padding:25px;
+  border-radius:20px;
+}
+
+.modalHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.modalHead button{
+  width:auto;
+  padding:8px 12px;
+  background:#dc2626;
+}
+
+@media(max-width:1000px){
+  .summaryGrid{
+    grid-template-columns:repeat(2,1fr);
+  }
 }
 
 @media(max-width:800px){
-.appShell{flex-direction:column;}
-.sidebarV22{width:100%;}
-.summaryGrid,.quickActions{grid-template-columns:1fr;}
+  .appShell{
+    flex-direction:column;
+  }
+
+  .sidebarV22{
+    width:100%;
+  }
+
+  .summaryGrid{
+    grid-template-columns:1fr;
+  }
 }
