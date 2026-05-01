@@ -1,37 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import './style.css';
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbxtnSpB7YbVf4CDKj-ZNrz5MxL3pRVbTR8IczafoRrcAyg5RD5QBJoCh8x4rVAkEWJh/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwmDkiHuFEemLOfpbHH4Nh2XuLfOcqzJOpev-4cWSF-ogbnCBD7Mgbln492qIgYLSVU/exec';
 const LOGO_URL = 'https://drive.google.com/uc?export=view&id=1x2wcr8kQUTKY9oxABkOrKeW5ras0Xc8A';
 const HERO_BG = 'https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?q=80&w=1600&auto=format&fit=crop';
 
 async function api(action, payload = {}) {
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action, ...payload })
-    });
-    return await res.json();
-  } catch (err) {
-    return { success: false, message: String(err) };
-  }
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...payload })
+  });
+  return await res.json();
+}
+
+function Modal({ show, title, children, onClose }) {
+  if (!show) return null;
+  return (
+    <div className="modalOverlay">
+      <div className="modalBox">
+        <div className="modalHead">
+          <h3>{title}</h3>
+          <button onClick={onClose}>✕</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
 }
 
 function LoginPage({ onSuccess }) {
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin123');
-  const [loading, setLoading] = useState(false);
 
   async function submitLogin() {
-    setLoading(true);
     const res = await api('login', { username, password });
-    setLoading(false);
-    if (res.success) {
-      onSuccess(res.user);
-    } else {
-      alert(res.message || 'Login gagal');
-    }
+    if (res.success) onSuccess(res.user);
+    else alert(res.message);
   }
 
   return (
@@ -42,7 +47,7 @@ function LoginPage({ onSuccess }) {
         <p>Football Academy Management System</p>
         <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="Username" />
         <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" />
-        <button onClick={submitLogin}>{loading ? 'PROCESSING...' : 'LOGIN SYSTEM'}</button>
+        <button onClick={submitLogin}>LOGIN SYSTEM</button>
       </div>
     </div>
   );
@@ -55,7 +60,7 @@ function Sidebar({ menu, setMenu, user, logout }) {
     ['attendance','📅 Absensi'],
     ['payments','💳 Pembayaran'],
     ['schedule','⚽ Jadwal'],
-    ['reports','📊 Laporan']
+    ['announcements','📢 Pengumuman']
   ];
 
   return (
@@ -68,7 +73,13 @@ function Sidebar({ menu, setMenu, user, logout }) {
 
       <div className="menuWrap">
         {menus.map((m,i)=>(
-          <button key={i} className={menu===m[0] ? 'menuBtn active' : 'menuBtn'} onClick={()=>setMenu(m[0])}>{m[1]}</button>
+          <button
+            key={i}
+            className={menu===m[0] ? 'menuBtn active' : 'menuBtn'}
+            onClick={()=>setMenu(m[0])}
+          >
+            {m[1]}
+          </button>
         ))}
       </div>
 
@@ -82,162 +93,294 @@ function Sidebar({ menu, setMenu, user, logout }) {
   );
 }
 
-function HeroBanner() {
-  return (
-    <div className="heroBanner" style={{ backgroundImage: `linear-gradient(rgba(17,24,39,.55),rgba(17,24,39,.55)), url(${HERO_BG})` }}>
-      <div>
-        <h1>Welcome Back, Admin</h1>
-        <p>Kelola akademi sepak bola dengan sistem enterprise modern.</p>
-      </div>
-      <div className="heroDate">{new Date().toLocaleDateString('id-ID')}</div>
-    </div>
-  );
-}
-
-function SummaryCards({ summary }) {
-  const cards = [
-    ['👥','Total Siswa', summary.totalStudents],
-    ['✅','Hadir Hari Ini', summary.hadirToday],
-    ['💰','Kas Bulan Ini', 'Rp'+Number(summary.income).toLocaleString()],
-    ['⚠️','Tunggakan', summary.tunggakan]
-  ];
-
-  return (
-    <div className="summaryGrid">
-      {cards.map((c,i)=>(
-        <div className="sumCard" key={i}>
-          <div className="sumIcon">{c[0]}</div>
-          <div>
-            <span>{c[1]}</span>
-            <h2>{c[2]}</h2>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function QuickActions() {
-  const btns = ['+ Tambah Siswa','+ Input Absensi','+ Input Pembayaran','+ Buat Jadwal'];
-  return <div className="quickActions">{btns.map((b,i)=><button key={i}>{b}</button>)}</div>;
-}
-
-function StudentTable({ students }) {
-  return (
-    <div className="panel large">
-      <div className="panelHeader"><span>👥 Data Siswa Terbaru</span></div>
-      <table className="modernTable">
-        <thead><tr><th>No</th><th>Nama</th><th>Kelompok</th><th>Orang Tua</th><th>Status</th></tr></thead>
-        <tbody>
-          {students.slice(0,5).map((s,i)=>(<tr key={i}><td>{i+1}</td><td>{s.name}</td><td>{s.group}</td><td>{s.parent}</td><td><span className="badge active">Aktif</span></td></tr>))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function AttendancePanel({ attendance }) {
-  return (
-    <div className="panel medium">
-      <div className="panelHeader"><span>📅 Absensi Hari Ini</span></div>
-      <div className="activityList">
-        {attendance.slice(0,5).map((a,i)=>(<div className="activityRow" key={i}><span>{a.student}</span><span className={a.status==='Hadir' ? 'badge hadir':'badge belum'}>{a.status}</span></div>))}
-      </div>
-    </div>
-  );
-}
-
-function PaymentPanel({ payments }) {
-  return (
-    <div className="panel large">
-      <div className="panelHeader"><span>💳 Pembayaran Terbaru</span></div>
-      <table className="modernTable">
-        <thead><tr><th>Nama</th><th>Bulan</th><th>Jumlah</th><th>Status</th></tr></thead>
-        <tbody>
-          {payments.slice(0,5).map((p,i)=>(<tr key={i}><td>{p.studentName}</td><td>{p.month}</td><td>Rp{Number(p.amount).toLocaleString()}</td><td><span className={p.status==='Lunas' ? 'badge active':'badge belum'}>{p.status}</span></td></tr>))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function AnnouncementPanel({ announcements }) {
-  return (
-    <div className="panel medium">
-      <div className="panelHeader"><span>📢 Pengumuman</span></div>
-      <div className="announceWrap">
-        {announcements.slice(0,4).map((a,i)=>(<div className="announceItem" key={i}><h4>{a.title}</h4><p>{a.content}</p></div>))}
-      </div>
-    </div>
-  );
-}
-
-function DataTable({ title, rows, cols }) {
-  return (
-    <div className="tablePage">
-      <h2>{title}</h2>
-      <table className="modernTable">
-        <thead><tr>{cols.map((c,i)=><th key={i}>{c.toUpperCase()}</th>)}</tr></thead>
-        <tbody>{rows.map((r,i)=><tr key={i}>{cols.map((c,j)=><td key={j}>{r[c]}</td>)}</tr>)}</tbody>
-      </table>
-    </div>
-  );
-}
-
-function MainContent({ menu, data, summary }) {
-  if(menu==='dashboard'){
-    return <>
-      <HeroBanner />
-      <SummaryCards summary={summary} />
-      <QuickActions />
-      <div className="gridTwo"><StudentTable students={data.students} /><AttendancePanel attendance={data.attendance} /></div>
-      <div className="gridTwo"><PaymentPanel payments={data.payments} /><AnnouncementPanel announcements={data.announcements} /></div>
-    </>;
-  }
-
-  if(menu==='students') return <DataTable title="DATA SISWA" rows={data.students} cols={['name','group','parent','phone','status']} />;
-  if(menu==='attendance') return <DataTable title="DATA ABSENSI" rows={data.attendance} cols={['student','date','status']} />;
-  if(menu==='payments') return <DataTable title="DATA PEMBAYARAN" rows={data.payments} cols={['studentName','month','amount','status']} />;
-  if(menu==='schedule') return <DataTable title="JADWAL LATIHAN" rows={data.schedule} cols={['title','date','time','location']} />;
-
-  return <div className="tablePage"><h2>Menu Dalam Pengembangan</h2></div>;
-}
-
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [menu, setMenu] = useState('dashboard');
-  const [data, setData] = useState({ students: [], attendance: [], payments: [], schedule: [], announcements: [] });
+
+  const [data, setData] = useState({
+    students: [],
+    attendance: [],
+    payments: [],
+    schedule: [],
+    announcements: []
+  });
+
+  const [showStudentModal, setShowStudentModal] = useState(false);
+
+  const [studentForm, setStudentForm] = useState({
+    name:'',
+    group:'',
+    parent:'',
+    phone:'',
+    photo:''
+  });
 
   useEffect(()=>{
     if(loggedIn) loadAllData();
-  }, [loggedIn]);
+  },[loggedIn]);
 
   async function loadAllData(){
     const res = await api('getAllData');
     if(res.success) setData(res.data);
   }
 
-  function getSummary(){
-    return {
-      totalStudents: data.students.length,
-      hadirToday: data.attendance.filter(x=>x.status==='Hadir').length,
-      income: data.payments.filter(x=>x.status==='Lunas').reduce((a,b)=>a+Number(b.amount),0),
-      tunggakan: data.payments.filter(x=>x.status!=='Lunas').length
-    };
+  async function saveStudent(){
+    const res = await api('addStudent', studentForm);
+    alert(res.message);
+
+    if(res.success){
+      setShowStudentModal(false);
+      setStudentForm({
+        name:'',
+        group:'',
+        parent:'',
+        phone:'',
+        photo:''
+      });
+      loadAllData();
+    }
+  }
+
+  async function removeStudent(id){
+    if(!window.confirm('Hapus siswa ini?')) return;
+    const res = await api('deleteStudent',{id});
+    alert(res.message);
+    loadAllData();
+  }
+
+  function Dashboard(){
+    return (
+      <>
+        <div className="heroBanner" style={{ backgroundImage: `linear-gradient(rgba(17,24,39,.55),rgba(17,24,39,.55)), url(${HERO_BG})` }}>
+          <div>
+            <h1>Welcome Back, Admin</h1>
+            <p>Kelola akademi sepak bola dengan sistem enterprise modern.</p>
+          </div>
+        </div>
+
+        <div className="summaryGrid">
+          <div className="sumCard">
+            <div className="sumIcon">👥</div>
+            <div>
+              <span>Total Siswa</span>
+              <h2>{data.students.length}</h2>
+            </div>
+          </div>
+
+          <div className="sumCard">
+            <div className="sumIcon">📅</div>
+            <div>
+              <span>Absensi</span>
+              <h2>{data.attendance.length}</h2>
+            </div>
+          </div>
+
+          <div className="sumCard">
+            <div className="sumIcon">💳</div>
+            <div>
+              <span>Pembayaran</span>
+              <h2>{data.payments.length}</h2>
+            </div>
+          </div>
+
+          <div className="sumCard">
+            <div className="sumIcon">📢</div>
+            <div>
+              <span>Pengumuman</span>
+              <h2>{data.announcements.length}</h2>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  function StudentsPage(){
+    return (
+      <div className="tablePage">
+        <div className="topBarPage">
+          <h2>DATA SISWA</h2>
+          <button onClick={()=>setShowStudentModal(true)}>+ Tambah Siswa</button>
+        </div>
+
+        <table className="modernTable">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Kelompok</th>
+              <th>Orang Tua</th>
+              <th>HP</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {data.students.map((s,i)=>(
+              <tr key={i}>
+                <td>{s.name}</td>
+                <td>{s.group}</td>
+                <td>{s.parent}</td>
+                <td>{s.phone}</td>
+                <td>
+                  <button className="delBtn" onClick={()=>removeStudent(s.id)}>Hapus</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   }
 
   if(!loggedIn){
-    return <LoginPage onSuccess={(u)=>{setUser(u);setLoggedIn(true);}} />;
+    return (
+      <LoginPage onSuccess={(u)=>{
+        setUser(u);
+        setLoggedIn(true);
+      }} />
+    );
   }
 
   return (
     <div className="appShell">
-      <Sidebar menu={menu} setMenu={setMenu} user={user} logout={()=>setLoggedIn(false)} />
+      <Sidebar
+        menu={menu}
+        setMenu={setMenu}
+        user={user}
+        logout={()=>setLoggedIn(false)}
+      />
+
       <div className="contentArea">
-        <MainContent menu={menu} data={data} summary={getSummary()} />
-        <div className="footer">© 2025 SSB Swadaya FC - Football Academy Management System</div>
+        {menu === 'dashboard' && <Dashboard />}
+        {menu === 'students' && <StudentsPage />}
+
+        {menu === 'attendance' && (
+          <div className="tablePage">
+            <h2>DATA ABSENSI</h2>
+            <table className="modernTable">
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>Tanggal</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.attendance.map((a,i)=>(
+                  <tr key={i}>
+                    <td>{a.student}</td>
+                    <td>{a.date}</td>
+                    <td>{a.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {menu === 'payments' && (
+          <div className="tablePage">
+            <h2>DATA PEMBAYARAN</h2>
+            <table className="modernTable">
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>Bulan</th>
+                  <th>Jumlah</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.payments.map((p,i)=>(
+                  <tr key={i}>
+                    <td>{p.studentName}</td>
+                    <td>{p.month}</td>
+                    <td>Rp{Number(p.amount).toLocaleString()}</td>
+                    <td>{p.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {menu === 'schedule' && (
+          <div className="tablePage">
+            <h2>JADWAL LATIHAN</h2>
+            <table className="modernTable">
+              <thead>
+                <tr>
+                  <th>Kegiatan</th>
+                  <th>Tanggal</th>
+                  <th>Jam</th>
+                  <th>Lokasi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.schedule.map((j,i)=>(
+                  <tr key={i}>
+                    <td>{j.title}</td>
+                    <td>{j.date}</td>
+                    <td>{j.time}</td>
+                    <td>{j.location}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {menu === 'announcements' && (
+          <div className="tablePage">
+            <h2>PENGUMUMAN</h2>
+            {data.announcements.map((n,i)=>(
+              <div className="announceItem" key={i}>
+                <h4>{n.title}</h4>
+                <p>{n.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      <Modal
+        show={showStudentModal}
+        title="Tambah Siswa Baru"
+        onClose={()=>setShowStudentModal(false)}
+      >
+        <input
+          placeholder="Nama Siswa"
+          value={studentForm.name}
+          onChange={e=>setStudentForm({...studentForm,name:e.target.value})}
+        />
+
+        <input
+          placeholder="Kelompok Umur"
+          value={studentForm.group}
+          onChange={e=>setStudentForm({...studentForm,group:e.target.value})}
+        />
+
+        <input
+          placeholder="Nama Orang Tua"
+          value={studentForm.parent}
+          onChange={e=>setStudentForm({...studentForm,parent:e.target.value})}
+        />
+
+        <input
+          placeholder="No HP"
+          value={studentForm.phone}
+          onChange={e=>setStudentForm({...studentForm,phone:e.target.value})}
+        />
+
+        <input
+          placeholder="URL Foto"
+          value={studentForm.photo}
+          onChange={e=>setStudentForm({...studentForm,photo:e.target.value})}
+        />
+
+        <button onClick={saveStudent}>SIMPAN SISWA</button>
+      </Modal>
     </div>
   );
 }
