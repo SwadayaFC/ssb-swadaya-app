@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login SSB</title>
+  <style>
+    body{margin:0;font-family:Arial;background:linear-gradient(135deg,#0f172a,#1e3a8a);height:100vh;display:flex;justify-content:center;align-items:center;color:#fff}
+    .box{background:rgba(0,0,0,.55);padding:28px;border-radius:14px;width:300px;text-align:center}
+    img{width:80px}
+    input{width:100%;padding:10px;margin:10px 0;border-radius:8px;border:none}
+    button{width:100%;padding:10px;border:none;border-radius:8px;background:#3b82f6;color:#fff;font-weight:bold;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <img src="logo.png">
+    <h2>Login SSB</h2>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
