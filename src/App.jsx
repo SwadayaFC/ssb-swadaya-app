@@ -30,6 +30,10 @@ export default function App() {
     try{
       const res = await fetch(API_URL,{
         method:"POST",
+        redirect:"follow",
+        headers:{
+          "Content-Type":"text/plain;charset=utf-8"
+        },
         body:JSON.stringify(payload)
       });
 
@@ -37,6 +41,7 @@ export default function App() {
       return JSON.parse(txt);
 
     }catch(err){
+      console.error(err);
       return {
         success:false,
         message:"NETWORK ERROR",
@@ -55,8 +60,8 @@ export default function App() {
 
     const res = await apiRequest({
       action:"login",
-      username:username,
-      password:password
+      username,
+      password
     });
 
     setLoading(false);
@@ -64,7 +69,7 @@ export default function App() {
     if(res.success){
       setLoggedIn(true);
       setUser(res.user);
-      loadAllData();
+      await loadAllData();
     }else{
       alert(res.message || "Login gagal");
     }
@@ -97,11 +102,55 @@ export default function App() {
     setPassword("");
   }
 
-  function renderTable(title,data){
+  async function addDummyStudent(){
+    const id = "STD" + Date.now();
+
+    const payload = {
+      id:id,
+      photo:"",
+      name:"Siswa Baru",
+      birth:"2012-01-01",
+      position:"Forward",
+      parent:"Orang Tua",
+      phone:"08123456789",
+      address:"Bogor"
+    };
+
+    const res = await apiRequest({
+      action:"addStudent",
+      payload
+    });
+
+    if(res.success){
+      await loadAllData();
+      alert("Siswa ditambahkan");
+    }else{
+      alert(res.message);
+    }
+  }
+
+  async function deleteStudent(id){
+    const ok = confirm("Hapus data siswa?");
+    if(!ok) return;
+
+    const res = await apiRequest({
+      action:"deleteStudent",
+      id:id
+    });
+
+    if(res.success){
+      await loadAllData();
+    }else{
+      alert(res.message);
+    }
+  }
+
+  function renderTable(title,data,isStudent=false){
     return(
       <div className="module-box">
         <div className="module-head">
           <h2>{title}</h2>
+          {isStudent && <button className="add-btn" onClick={addDummyStudent}>+ Add Student</button>}
         </div>
 
         <table>
@@ -112,6 +161,7 @@ export default function App() {
                   <th key={i}>{h}</th>
                 ))
               }
+              {isStudent && <th>action</th>}
             </tr>
           </thead>
 
@@ -124,6 +174,11 @@ export default function App() {
                   {Object.values(row).map((v,j)=>(
                     <td key={j}>{v}</td>
                   ))}
+                  {isStudent && (
+                    <td>
+                      <button className="del-btn" onClick={()=>deleteStudent(row.id)}>Delete</button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
@@ -137,7 +192,8 @@ export default function App() {
     return(
       <div className="login-page">
         <div className="login-box">
-          <h1>SSB SWADAYA FC LOGIN</h1>
+          <h1>SSB SWADAYA FC V20</h1>
+          <p>Enterprise Football School Management</p>
 
           <input
             type="text"
@@ -154,7 +210,7 @@ export default function App() {
           />
 
           <button onClick={handleLogin}>
-            {loading ? "PROCESSING..." : "LOGIN"}
+            {loading ? "PROCESSING..." : "LOGIN SYSTEM"}
           </button>
         </div>
       </div>
@@ -177,7 +233,7 @@ export default function App() {
       <main className="main-content">
         <div className="topbar">
           <h1>SSB SWADAYA FC MANAGEMENT SYSTEM</h1>
-          <span>Welcome, {user?.name}</span>
+          <span>{user?.name} ({user?.role})</span>
         </div>
 
         <div className="cards">
@@ -188,8 +244,8 @@ export default function App() {
           <div className="card">Schedule<br />{dashboard.schedule}</div>
         </div>
 
-        {page === "dashboard" && renderTable("Recent Students",students)}
-        {page === "students" && renderTable("Students Management",students)}
+        {page === "dashboard" && renderTable("Recent Students",students,true)}
+        {page === "students" && renderTable("Students Management",students,true)}
         {page === "staff" && renderTable("Staff Management",staff)}
         {page === "payments" && renderTable("Payments Management",payments)}
         {page === "attendance" && renderTable("Attendance Management",attendance)}
