@@ -41,7 +41,7 @@ function LoginPage({ onSuccess }) {
   return (
     <div className="loginScreen" style={{ backgroundImage: `linear-gradient(rgba(7,12,24,.75),rgba(7,12,24,.75)), url(${HERO_BG})` }}>
       <div className="loginGlass">
-        <img src={LOGO_URL} className="clubLogo" alt="logo" />
+        <img src={LOGO_URL} alt="logo" style={{width:'120px',marginBottom:'15px'}} />
         <h1>SSB SWADAYA FC</h1>
         <p>Football Academy Management System</p>
         <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="Username" />
@@ -65,7 +65,7 @@ function Sidebar({ menu, setMenu, user, logout }) {
   return (
     <aside className="sidebarV22">
       <div className="brandTop">
-        <img src={LOGO_URL} alt="logo" />
+        <img src={LOGO_URL} alt="logo" style={{width:'95px',margin:'10px auto',display:'block'}} />
         <h2>SSB SWADAYA FC</h2>
         <span>Football Academy</span>
       </div>
@@ -160,7 +160,13 @@ export default function App() {
   function Dashboard(){
     return (
       <>
-        <div className="heroBanner" style={{ backgroundImage: `linear-gradient(rgba(17,24,39,.55),rgba(17,24,39,.55)), url(${HERO_BG})` }}>
+        <div className="Banner" style={{
+  backgroundImage:`linear-gradient(rgba(2,8,25,.65),rgba(2,8,25,.65)), url(${HERO_BG})`,
+  backgroundSize:'cover',
+  backgroundPosition:'center',
+  borderRadius:'20px',
+  padding:'35px'
+}}
           <div>
             <h1>Welcome Back, Admin</h1>
             <p>Kelola akademi sepak bola dengan sistem enterprise modern.</p>
